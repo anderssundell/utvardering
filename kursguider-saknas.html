@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklista: kursguider, litteraturlistor och kursrapporter &ndash; Utbildningsutv&auml;rdering</title>
+<link rel="stylesheet" href="https://use.typekit.net/zkx2sji.css">
+<style>
+  :root {
+    --dark: #24273a;
+    --accent: #e2005e;
+    --link: #0077cc;
+    --bg: #fefefe;
+    --border: #e4e4e4;
+    --text: #24273a;
+    --muted: #737272;
+    --ok: #2d7a45;
+    --ok-bg: #e8f5ec;
+    --warn: #8a6000;
+    --warn-bg: #fdf6e3;
+    --miss: #c0392b;
+    --miss-bg: #fbeae7;
+    --na: #737272;
+    --na-bg: #f2f2f2;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: acumin-pro, Helvetica, sans-serif; font-weight: 300; font-size: 1rem; color: var(--text); background: var(--bg); line-height: 1.55; }
+  .topbar { background: var(--dark); padding: 0.6rem 2.5rem; font-size: 0.875rem; }
+  .topbar a { color: rgba(254,254,254,0.6); text-decoration: none; font-weight: 300; }
+  .topbar a:hover { color: #fff; }
+
+  .container { max-width: 1080px; margin: 0 auto; padding: 2.5rem 2.5rem 4rem; }
+  h1 { font-weight: 300; font-size: 2rem; margin-bottom: 0.5rem; }
+  .subtitle { font-size: 1rem; color: var(--muted); margin-bottom: 2rem; }
+  h2 {
+    font-size: 1rem; font-weight: 600;
+    margin: 2.25rem 0 0.75rem; padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--dark);
+  }
+  h2 .code {
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 0.8125rem; color: var(--muted); font-weight: 400;
+    margin-right: 0.5rem;
+  }
+
+  .intro { font-size: 0.9375rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.65; max-width: 880px; }
+  .intro p { margin-bottom: 0.6rem; }
+  .intro strong { color: var(--text); font-weight: 500; }
+
+  .legend { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.75rem; font-size: 0.8125rem; color: var(--muted); }
+  .legend-item { display: flex; align-items: center; gap: 0.4rem; }
+
+  .cdoc {
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.18rem 0.45rem;
+    border-radius: 3px;
+    display: inline-block;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+  }
+  .cdoc-ok { background: var(--ok-bg); color: var(--ok); }
+  .cdoc-warn { background: var(--warn-bg); color: var(--warn); }
+  .cdoc-miss { background: var(--miss-bg); color: var(--miss); }
+  .cdoc-na { background: var(--na-bg); color: var(--na); font-style: italic; font-weight: 400; }
+
+  .course-list { margin-bottom: 1.5rem; }
+  .course-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 75px 110px 130px 110px;
+    gap: 0.75rem;
+    padding: 0.6rem 0.85rem;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+  .course-row:first-child { border-top: 1px solid var(--border); }
+  .course-row.header {
+    background: #fafafa;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    padding: 0.45rem 0.85rem;
+  }
+  .course-row .ccode {
+    font-family: "SF Mono", Menlo, monospace;
+    font-weight: 600;
+    font-size: 0.8125rem;
+    color: var(--text);
+  }
+  .course-row .cname {
+    font-size: 0.875rem;
+    line-height: 1.35;
+  }
+  .course-row .cterm {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .summary-box {
+    background: #f6f8fa;
+    border-left: 3px solid var(--dark);
+    padding: 0.85rem 1rem;
+    font-size: 0.875rem;
+    color: var(--text);
+    line-height: 1.6;
+    margin: 1rem 0 2rem;
+    border-radius: 0 4px 4px 0;
+  }
+  .summary-box strong { color: var(--text); }
+  .summary-box ul { padding-left: 1.2rem; margin: 0.5rem 0; }
+  .summary-box li { margin-bottom: 0.25rem; }
+
+  .note {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 0.35rem;
+  }
+
+  footer { background: var(--dark); color: rgba(254,254,254,0.6); text-align: center; padding: 1.5rem 2.5rem; font-size: 0.875rem; font-weight: 300; }
+
+  @media (max-width: 820px) {
+    .course-row { grid-template-columns: 70px 1fr; row-gap: 0.4rem; }
+    .course-row .cterm, .course-row > div:nth-child(n+4) { grid-column: 2 / -1; padding-left: 0; }
+    .course-row.header { display: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="topbar"><a href="index.html">&larr; Tillbaka till portalen</a></div>
+  <div class="container">
+    <h1>Checklista: kursguider, litteraturlistor och kursrapporter</h1>
+    <p class="subtitle">Status f&ouml;r centrala kursunderlag (HT25 / VT26) f&ouml;r samtliga tre program</p>
+
+    <div class="intro">
+      <p>
+        Tre slags kursunderlag visas per kurs: <strong>kursguide</strong> fr&aring;n senaste
+        genomf&ouml;randet (HT25 eller VT26), <strong>litteraturlista</strong> fr&aring;n samma omg&aring;ng
+        (i fil eller p&aring; gu.se), och <strong>kursrapport</strong> fr&aring;n n&auml;rmast f&ouml;reg&aring;ende
+        omg&aring;ng av kursen. Tabellerna nedan visar vad som finns och vad som saknas per kolumn.
+      </p>
+    </div>
+
+    <div class="legend">
+      <div class="legend-item"><span class="cdoc cdoc-ok">Aktuell</span> matchar f&ouml;rv&auml;ntad omg&aring;ng (eller verifierbar p&aring; webben)</div>
+      <div class="legend-item"><span class="cdoc cdoc-warn">&Auml;ldre</span> endast tidigare version finns</div>
+      <div class="legend-item"><span class="cdoc cdoc-miss">Saknas</span> inget i underlaget</div>
+      <div class="legend-item"><span class="cdoc cdoc-na">&mdash;</span> inte till&auml;mpligt eller nystartad</div>
+    </div>
+
+    <!-- ==================== S1STV ==================== -->
+    <h2><span class="code">S1STV</span> Statsvetarprogrammet</h2>
+
+    <div class="course-list">
+      <div class="course-row header">
+        <div>Kurs</div>
+        <div>Namn</div>
+        <div>Ges p&aring;</div>
+        <div>Kursguide</div>
+        <div>Litteraturlista</div>
+        <div>Kursrapport</div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1113</div>
+        <div class="cname">Institutioner och akt&ouml;rer i demokratin</div>
+        <div class="cterm">HT + VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">V25 (webb)</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1124</div>
+        <div class="cname">Politisk teori</div>
+        <div class="cterm">HT + VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">Webb</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1125</div>
+        <div class="cname">Internationell politik</div>
+        <div class="cterm">HT + VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">V25 (webb)</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1214</div>
+        <div class="cname">Demokrati och demokratisering</div>
+        <div class="cterm">VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">V25 (webb)</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1223</div>
+        <div class="cname">Tematisk f&ouml;rdjupning</div>
+        <div class="cterm">HT + VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-na">Ingen</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1224</div>
+        <div class="cname">Milj&ouml;politikens villkor</div>
+        <div class="cterm">VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">I guide</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1217</div>
+        <div class="cname">V&auml;rldspolitiken: ordning, styrning, samarbete och diplomati</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-warn">V25 (fil)</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1127</div>
+        <div class="cname">Conflict and Conflict Management</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-warn">V25 (fil)</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1136</div>
+        <div class="cname">Foreign Policy Analysis</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">V25 (webb)</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1227</div>
+        <div class="cname">Institutionell utveckling och demokratisering</div>
+        <div class="cterm">VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">Webb</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1421</div>
+        <div class="cname">Statsvetaren i yrkeslivet</div>
+        <div class="cterm">VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">V26 (webb)</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1411</div>
+        <div class="cname">Praktik (helfart, 30 hp)</div>
+        <div class="cterm">HT + VT</div>
+        <div><span class="cdoc cdoc-warn">H24</span></div>
+        <div><span class="cdoc cdoc-na">&mdash;</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1412</div>
+        <div class="cname">Praktik (halvfart, 15 hp)</div>
+        <div class="cterm">HT + VT</div>
+        <div><span class="cdoc cdoc-warn">H24</span></div>
+        <div><span class="cdoc cdoc-na">&mdash;</span></div>
+        <div><span class="cdoc cdoc-miss">Saknas</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1313</div>
+        <div class="cname">Metod inkl. uppsatssamordning</div>
+        <div class="cterm">VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">V26 (fil)</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK1523</div>
+        <div class="cname">Examensarbete</div>
+        <div class="cterm">VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-warn">H24 (fil)</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+    </div>
+
+    <div class="summary-box">
+      <strong>S1STV sammanfattning:</strong>
+      <ul>
+        <li><strong>Kursguider</strong> &ndash; 13 av 15 aktuella. Praktikkurserna SK1411 och SK1412 har bara H24-version.</li>
+        <li><strong>Litteraturlistor</strong> &ndash; alla kurser t&auml;ckta utom praktik (ej till&auml;mpligt). Tre kurser har endast &auml;ldre fil utan webbverifiering: SK1217, SK1127, SK1523.</li>
+        <li><strong>Kursrapporter</strong> &ndash; n&auml;rmast f&ouml;reg&aring;ende omg&aring;ng (V25) finns f&ouml;r 14 av 15. Saknas helt: SK1412.</li>
+      </ul>
+    </div>
+
+    <!-- ==================== MAPS ==================== -->
+    <h2><span class="code">S2PSC</span> Masterprogrammet i statsvetenskap (MaPS)</h2>
+
+    <div class="course-list">
+      <div class="course-row header">
+        <div>Kurs</div>
+        <div>Namn</div>
+        <div>Ges p&aring;</div>
+        <div>Kursguide</div>
+        <div>Litteraturlista</div>
+        <div>Kursrapport</div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2121</div>
+        <div class="cname">Political Science Analysis</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+        <div><span class="cdoc cdoc-ok">I guide</span></div>
+        <div><span class="cdoc cdoc-ok">H24</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2302</div>
+        <div class="cname">Research Design in Political Science</div>
+        <div class="cterm">HT (ny HT26)</div>
+        <div><span class="cdoc cdoc-na">Ej till&auml;mpligt</span></div>
+        <div><span class="cdoc cdoc-na">Ej till&auml;mpligt</span></div>
+        <div><span class="cdoc cdoc-na">Ej till&auml;mpligt</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2301</div>
+        <div class="cname">Advanced Quantitative Methods in the Social Sciences</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-na">Ej till&auml;mpligt</span></div>
+        <div><span class="cdoc cdoc-na">Ej till&auml;mpligt</span></div>
+        <div><span class="cdoc cdoc-na">Ej till&auml;mpligt</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SF2324</div>
+        <div class="cname">Applied Research Design and Quantitative Research Methods</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-warn">H25 (docx)</span></div>
+        <div><span class="cdoc cdoc-ok">I guide</span></div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2212</div>
+        <div class="cname">The Quality of Government in a Comparative Perspective</div>
+        <div class="cterm">VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">V26 (fil)</span></div>
+        <div><span class="cdoc cdoc-warn">V24</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SF2222</div>
+        <div class="cname">Citizens, Politicians and the Media</div>
+        <div class="cterm">VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">I guide</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2221</div>
+        <div class="cname">Environmental Politics and Institutions</div>
+        <div class="cterm">VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">I guide</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2222</div>
+        <div class="cname">Varieties of Democracy and Democratization</div>
+        <div class="cterm">VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">I guide</span></div>
+        <div><span class="cdoc cdoc-ok">V25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2211</div>
+        <div class="cname">The Performance of Democracies</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+        <div><span class="cdoc cdoc-ok">Webb</span></div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">EU2210</div>
+        <div class="cname">European Environment and Energy</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+        <div><span class="cdoc cdoc-ok">I guide</span></div>
+        <div><span class="cdoc cdoc-ok">H24</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2303</div>
+        <div class="cname">Methodological Specialization</div>
+        <div class="cterm">HT (ny HT26)</div>
+        <div><span class="cdoc cdoc-na">Nystartad</span></div>
+        <div><span class="cdoc cdoc-na">Nystartad</span></div>
+        <div><span class="cdoc cdoc-na">Nystartad</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2420</div>
+        <div class="cname">Internship (helfart, 30 hp)</div>
+        <div class="cterm">HT + VT</div>
+        <div><span class="cdoc cdoc-miss">Saknas</span></div>
+        <div><span class="cdoc cdoc-na">&mdash;</span></div>
+        <div><span class="cdoc cdoc-miss">Saknas</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2412</div>
+        <div class="cname">Internship (halvfart, 15 hp)</div>
+        <div class="cterm">HT + VT</div>
+        <div><span class="cdoc cdoc-miss">Saknas</span></div>
+        <div><span class="cdoc cdoc-na">&mdash;</span></div>
+        <div><span class="cdoc cdoc-miss">Saknas</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2532</div>
+        <div class="cname">Master's Thesis in Political Science</div>
+        <div class="cterm">HT + VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-na">Ingen</span></div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+      </div>
+    </div>
+
+    <div class="summary-box">
+      <strong>MAPS sammanfattning:</strong>
+      <ul>
+        <li><strong>Kursguider</strong> &ndash; 9 av 12 till&auml;mpliga kurser har aktuell guide. SF2324 har H25 men endast som docx (PDF saknas). Saknas helt: SK2420, SK2412. Ej till&auml;mpligt (extern eller nystartad HT26): SK2301, SK2302 och SK2303 (nystartade kurser).</li>
+        <li><strong>Litteraturlistor</strong> &ndash; tio kurser har litteraturen i kursguiden eller p&aring; gu.se; SK2212 har separat fil. Internship- och uppsatskurser har ingen litteraturlista (ej till&auml;mpligt).</li>
+        <li><strong>Kursrapporter</strong> &ndash; n&auml;rmast f&ouml;reg&aring;ende omg&aring;ng finns f&ouml;r de flesta kurser. SK2212 har bara V24 (V25 saknas). Saknas helt: SK2420, SK2412.</li>
+      </ul>
+      <p class="note">Anm&auml;rkning: utbildningsplanen anger koden SK2122 f&ouml;r &bdquo;Introduction to Political Science Analysis&rdquo;, men kursen k&ouml;rs under koden <strong>SK2121</strong> enligt ansvarsdokumentet och kursguiden.</p>
+    </div>
+
+    <!-- ==================== IAGG ==================== -->
+    <h2><span class="code">S2IAG</span> International Administration and Global Governance (IAGG)</h2>
+
+    <div class="course-list">
+      <div class="course-row header">
+        <div>Kurs</div>
+        <div>Namn</div>
+        <div>Ges p&aring;</div>
+        <div>Kursguide</div>
+        <div>Litteraturlista</div>
+        <div>Kursrapport</div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">AG2110</div>
+        <div class="cname">Theoretical and Historical Perspectives on Global Governance</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+        <div><span class="cdoc cdoc-ok">I guide</span></div>
+        <div><span class="cdoc cdoc-ok">H24</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">AG2120</div>
+        <div class="cname">International Administration and Policy</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+        <div><span class="cdoc cdoc-ok">I guide</span></div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2212</div>
+        <div class="cname">The Quality of Government in a Comparative Perspective</div>
+        <div class="cterm">VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-ok">V26 (fil)</span></div>
+        <div><span class="cdoc cdoc-warn">V24</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">AG2440</div>
+        <div class="cname">Internship (halvfart, 15 hp)</div>
+        <div class="cterm">HT + VT</div>
+        <div><span class="cdoc cdoc-miss">Saknas</span></div>
+        <div><span class="cdoc cdoc-na">&mdash;</span></div>
+        <div><span class="cdoc cdoc-miss">Saknas</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">AG2450</div>
+        <div class="cname">Internship (helfart, 30 hp)</div>
+        <div class="cterm">HT + VT</div>
+        <div><span class="cdoc cdoc-miss">Saknas</span></div>
+        <div><span class="cdoc cdoc-na">&mdash;</span></div>
+        <div><span class="cdoc cdoc-miss">Saknas</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2211</div>
+        <div class="cname">The Performance of Democracies</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+        <div><span class="cdoc cdoc-ok">Webb</span></div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">EU2210</div>
+        <div class="cname">European Environment and Energy</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+        <div><span class="cdoc cdoc-ok">I guide</span></div>
+        <div><span class="cdoc cdoc-ok">H24</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">EU2215</div>
+        <div class="cname">Europe in the World</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+        <div><span class="cdoc cdoc-ok">I guide</span></div>
+        <div><span class="cdoc cdoc-warn">H22 (fil)</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SF2323</div>
+        <div class="cname">Applied Qualitative Research Methods, Problems and Design</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+        <div><span class="cdoc cdoc-ok">H25 (fil)</span></div>
+        <div><span class="cdoc cdoc-ok">H24</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SF2324</div>
+        <div class="cname">Applied Research Design and Quantitative Research Methods</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-warn">H25 (docx)</span></div>
+        <div><span class="cdoc cdoc-ok">I guide</span></div>
+        <div><span class="cdoc cdoc-ok">H25</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">SK2301</div>
+        <div class="cname">Advanced Quantitative Methods in the Social Sciences</div>
+        <div class="cterm">HT</div>
+        <div><span class="cdoc cdoc-na">Ej till&auml;mpligt</span></div>
+        <div><span class="cdoc cdoc-na">Ej till&auml;mpligt</span></div>
+        <div><span class="cdoc cdoc-na">Ej till&auml;mpligt</span></div>
+      </div>
+
+      <div class="course-row">
+        <div class="ccode">AG2500</div>
+        <div class="cname">Master's Thesis for IAGG</div>
+        <div class="cterm">HT + VT</div>
+        <div><span class="cdoc cdoc-ok">V26</span></div>
+        <div><span class="cdoc cdoc-na">Ingen</span></div>
+        <div><span class="cdoc cdoc-warn">2024</span></div>
+      </div>
+    </div>
+
+    <div class="summary-box">
+      <strong>IAGG sammanfattning:</strong>
+      <ul>
+        <li><strong>Kursguider</strong> &ndash; 9 av 11 till&auml;mpliga kurser har aktuell guide. SF2324 har H25 men endast som docx. Saknas helt: AG2440, AG2450. Ej till&auml;mpligt: SK2301.</li>
+        <li><strong>Litteraturlistor</strong> &ndash; majoriteten ligger i kursguiden eller p&aring; gu.se; SK2212 och SF2323 har separata filer fr&aring;n samma omg&aring;ng. Internship-kurser har ingen litteraturlista.</li>
+        <li><strong>Kursrapporter</strong> &ndash; AG2110, AG2120, SK2211, EU2210, SF2323, SF2324 har n&auml;rmast f&ouml;reg&aring;ende omg&aring;ng. SK2212 har V24 (V25 saknas), AG2500 endast 2024, EU2215 endast H22. Saknas helt: AG2440, AG2450.</li>
+      </ul>
+    </div>
+
+    <!-- ==================== ÖVERGRIPANDE ==================== -->
+    <h2>Totalsammanst&auml;llning</h2>
+
+    <div class="summary-box">
+      <p><strong>Status april 2026.</strong> Tabellerna ovan visar nuvarande underlag per kurs i de tre programmen.</p>
+      <ul>
+        <li><strong>Saknas i samtliga tre underlag</strong>: SK2420, SK2412 (MAPS), AG2440, AG2450 (IAGG) &ndash; samtliga praktik/internship.</li>
+        <li><strong>&Auml;ldre kursrapport, n&auml;rmast f&ouml;reg&aring;ende omg&aring;ng saknas</strong>: SK2212 (V25), AG2500 (V25/H25), EU2215 (H24).</li>
+        <li><strong>Ej till&auml;mpligt</strong>: SK2301, SK2302 och SK2303 nystartade kurser. Kursplaner finns p&aring; gu.se.</li>
+      </ul>
+      <p class="note"><strong>&bdquo;I guide&rdquo;</strong> = litteraturen specificeras direkt i kursguiden (l&auml;nken &ouml;ppnar samma kursguide-PDF). <strong>&bdquo;Webb&rdquo;</strong> = litteraturlistan finns p&aring; gu.se. <strong>&bdquo;Ingen&rdquo;</strong> = kursen har ingen separat litteraturlista (examensarbete eller kurser d&auml;r studenten letar litteratur sj&auml;lv).</p>
+    </div>
+
+  </div>
+
+  <footer>Statsvetenskapliga institutionen, G&ouml;teborgs universitet</footer>
+</body>
+</html>

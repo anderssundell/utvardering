@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kursplaner – Utbildningsutvärdering Statsvetenskap GU</title>
+<style>
+:root {
+  --gu-blue: #003366;
+  --gu-gold: #C8A951;
+  --green: #2d7a45;
+  --orange: #c96a00;
+  --red: #b0001e;
+  --light: #f4f3f0;
+  --mid: #e2dfd9;
+  --text: #1a1a1a;
+  --muted: #888;
+  --link: #003366;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", Arial, sans-serif; font-size: 15px; color: var(--text); background: var(--light); }
+
+header {
+  background: var(--gu-blue); color: white;
+  padding: 22px 40px 18px;
+  border-bottom: 4px solid var(--gu-gold);
+}
+header h1 { font-size: 1.45rem; font-weight: 700; }
+header p  { margin-top: 4px; opacity: 0.75; font-size: 0.86rem; }
+header .back { margin-top: 8px; }
+header .back a { color: var(--gu-gold); text-decoration: none; font-size: 0.82rem; }
+header .back a:hover { text-decoration: underline; }
+
+.tabs {
+  background: white;
+  border-bottom: 1px solid var(--mid);
+  padding: 0 40px;
+  display: flex;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  overflow-x: auto;
+}
+.tab-btn {
+  padding: 13px 20px;
+  border: none; background: none;
+  color: var(--muted); font-size: 0.87rem; font-weight: 600;
+  border-bottom: 3px solid transparent;
+  cursor: pointer; white-space: nowrap;
+  font-family: inherit; flex-shrink: 0;
+  transition: color 0.15s;
+}
+.tab-btn:hover { color: var(--gu-blue); }
+.tab-btn.active { color: var(--gu-blue); border-bottom-color: var(--gu-gold); }
+.tab-btn .code { font-size: 0.74rem; opacity: 0.6; margin-left: 4px; }
+
+.container { max-width: 980px; margin: 0 auto; padding: 28px 36px; }
+.program-panel { display: none; }
+.program-panel.active { display: block; }
+
+/* ── Program header card ── */
+.prog-header {
+  background: white; border: 1px solid var(--mid);
+  border-radius: 10px; padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap;
+}
+.prog-header .title h2 { font-size: 1.1rem; color: var(--gu-blue); font-weight: 700; }
+.prog-header .title p  { margin-top: 3px; color: var(--muted); font-size: 0.83rem; }
+.prog-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.meta-chip {
+  background: var(--light); border: 1px solid var(--mid);
+  border-radius: 20px; padding: 2px 9px;
+  font-size: 0.74rem; color: var(--muted);
+}
+.btn-plan {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 0.78rem; font-weight: 600;
+  color: var(--gu-blue); text-decoration: none;
+  border: 1px solid var(--gu-blue);
+  padding: 5px 12px; border-radius: 5px;
+  white-space: nowrap; align-self: center;
+  transition: background 0.12s, color 0.12s;
+}
+.btn-plan:hover { background: var(--gu-blue); color: white; }
+
+/* ── Legend ── */
+.legend {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  margin-bottom: 20px; font-size: 0.78rem; color: var(--muted);
+  align-items: center;
+}
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-sep { width: 1px; height: 14px; background: var(--mid); flex-shrink: 0; }
+.legend-dot { width: 3px; height: 18px; border-radius: 1px; flex-shrink: 0; }
+.legend-dot.obl  { background: var(--green); }
+.legend-dot.val  { background: var(--gu-gold); }
+.legend-dot.new  { background: var(--red); }
+
+/* ── Semester sections ── */
+.semester { margin-bottom: 30px; }
+.sem-header {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-bottom: 8px; padding-bottom: 7px;
+  border-bottom: 1px solid var(--mid);
+}
+.sem-num {
+  font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.5px; color: var(--gu-blue);
+  background: #e8eef5; padding: 2px 8px; border-radius: 10px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.sem-title  { font-size: 0.96rem; font-weight: 700; color: var(--text); flex: 1; }
+.sem-credits { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
+
+/* ══════════════════════════════════════════
+   COURSE ROW – the core element
+   ══════════════════════════════════════════ */
+.course-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 14px;
+  background: white;
+  border: 1px solid #e0ddd7;
+  border-left: 3px solid #ccc;
+  border-radius: 0 7px 7px 0;
+  margin-bottom: 4px;
+}
+.course-row:hover { background: #fafaf8; }
+
+/* Left-border colors communicate status */
+.course-row.obl  { border-left-color: var(--green); }
+.course-row.val  { border-left-color: var(--gu-gold); }
+.course-row.semi { border-left-color: #c09010; }
+.course-row.new  { border-left-color: var(--red); }
+
+/* Course code – plain, scannable, not a chip */
+.cr-code {
+  font-family: "Courier New", monospace;
+  font-size: 0.78rem; font-weight: 700;
+  color: #7090b0;
+  white-space: nowrap; flex-shrink: 0;
+  min-width: 52px;
+}
+
+/* Body */
+.cr-body { flex: 1; min-width: 0; }
+.cr-name { font-size: 0.9rem; font-weight: 600; line-height: 1.3; }
+.cr-sub  { font-size: 0.76rem; color: var(--muted); margin-top: 1px; }
+
+/* Right side */
+.cr-right {
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+  flex-wrap: wrap; justify-content: flex-end; max-width: 380px;
+}
+.cr-hp {
+  font-size: 0.8rem; font-weight: 700; color: var(--muted);
+  white-space: nowrap; min-width: 34px; text-align: right;
+}
+
+/* Badge – only for the "Ny H2026" marker */
+.badge-new {
+  font-size: 0.68rem; font-weight: 700;
+  padding: 2px 7px; border-radius: 8px;
+  white-space: nowrap;
+  background: #fff0f0; color: var(--red);
+}
+
+/* ── Document link strip ── */
+.cr-docs {
+  display: flex; gap: 9px; align-items: center;
+  flex-wrap: wrap; justify-content: flex-end;
+}
+.doc-link {
+  font-size: 0.72rem; font-weight: 600;
+  text-decoration: none; white-space: nowrap;
+  opacity: 0.8; letter-spacing: 0.01em;
+  border-bottom: 1px solid transparent;
+  transition: opacity 0.12s, border-color 0.12s;
+}
+.doc-link:hover { opacity: 1; border-bottom-color: currentColor; }
+/* Color per document type */
+.doc-link.kp { color: var(--gu-blue); }
+.doc-link.kg { color: #2a6a4a; }
+.doc-link.ll { color: #5a3a8a; }
+.doc-link.kr { color: #8a6000; }
+.doc-link.unavail { color: #ccc; cursor: default; font-weight: 400; font-style: italic; }
+
+/* Legacy – kept for any remaining uses */
+.btn-kursplan {
+  font-size: 0.76rem; font-weight: 600;
+  color: var(--gu-blue); text-decoration: none;
+  white-space: nowrap; opacity: 0.8;
+  border-bottom: 1px solid transparent;
+  transition: opacity 0.12s, border-color 0.12s;
+}
+.btn-kursplan:hover { opacity: 1; border-bottom-color: var(--gu-blue); }
+.btn-kursplan.unavail { color: #bbb; cursor: default; font-style: italic; }
+
+/* ══════════════════════════════════════════
+   CHOICE BLOCKS – grouping with a header
+   ══════════════════════════════════════════ */
+.choice-block {
+  border: 1px solid #e0ddd7;
+  border-radius: 8px; overflow: hidden;
+  margin-bottom: 6px; background: white;
+}
+.choice-hdr {
+  background: #f5f4f1; padding: 5px 14px;
+  font-size: 0.7rem; font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  border-bottom: 1px solid #e0ddd7;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.choice-hdr .hp { font-weight: 600; text-transform: none; letter-spacing: 0; }
+
+/* Rows inside choice blocks share borders instead of having their own */
+.choice-block .course-row {
+  border-radius: 0; border: none;
+  border-left: 3px solid #ccc;
+  border-bottom: 1px solid #e0ddd7; margin: 0;
+}
+.choice-block .course-row:last-child { border-bottom: none; }
+.choice-block .course-row.obl  { border-left-color: var(--green); }
+.choice-block .course-row.val  { border-left-color: var(--gu-gold); }
+.choice-block .course-row.semi { border-left-color: #c09010; }
+.choice-block .course-row.new  { border-left-color: var(--red); }
+
+/* "eller" dividers */
+.or-row {
+  text-align: center; padding: 4px;
+  font-size: 0.72rem; color: #bbb; font-style: italic;
+  background: #faf9f7; border-bottom: 1px solid #e0ddd7;
+}
+.or-sep {
+  text-align: center; padding: 7px 0;
+  font-size: 0.78rem; color: var(--muted); font-style: italic;
+}
+
+/* Info / warn boxes */
+.info-box {
+  background: #f0f5ff; border: 1px solid #c8d8f0;
+  border-left: 3px solid #6090cc;
+  border-radius: 6px; padding: 9px 13px;
+  font-size: 0.82rem; margin-bottom: 8px; color: #334;
+}
+.warn-box {
+  background: #fffbf0; border: 1px solid #e6d48a;
+  border-left: 3px solid var(--gu-gold);
+  border-radius: 6px; padding: 9px 13px;
+  font-size: 0.82rem; margin-bottom: 10px;
+}
+
+/* ══════════════════════════════════════════
+   INRIKTNING BLOCK (S1STV T3-4)
+   ══════════════════════════════════════════ */
+.inriktning-block {
+  border: 1px solid #d0c8a8;
+  border-radius: 9px; overflow: hidden; margin-bottom: 10px;
+}
+.inriktning-hdr {
+  background: var(--gu-blue);
+  color: white; padding: 11px 18px;
+}
+.inriktning-hdr h3 { font-size: 0.92rem; font-weight: 700; }
+.inriktning-hdr p  { font-size: 0.78rem; opacity: 0.8; margin-top: 2px; }
+
+.inriktning-tracks {
+  background: white;
+  display: grid; grid-template-columns: 1fr 1fr;
+}
+.inr-track {
+  padding: 14px 16px;
+  border-right: 1px solid var(--mid);
+}
+.inr-track:last-child { border-right: none; }
+.inr-track h4 { font-size: 0.86rem; font-weight: 700; color: var(--gu-blue); margin-bottom: 6px; }
+.inr-track .track-courses { margin-bottom: 8px; }
+.track-course-row {
+  display: flex; align-items: baseline; gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid #f0ede7;
+  font-size: 0.82rem;
+}
+.track-course-row:last-child { border-bottom: none; }
+.track-course-row .tc-label {
+  font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.3px; color: var(--muted);
+  white-space: nowrap; min-width: 85px;
+}
+.track-course-row .tc-name { flex: 1; color: var(--text); line-height: 1.3; }
+.track-course-row .tc-hp { font-size: 0.76rem; color: var(--muted); white-space: nowrap; }
+.inr-track .track-note {
+  font-size: 0.75rem; color: var(--orange);
+  font-style: italic; margin-top: 4px;
+}
+
+.inriktning-others {
+  background: #f7f6f3; border-top: 1px solid var(--mid);
+  padding: 10px 16px;
+}
+.inriktning-others p { font-size: 0.77rem; color: var(--muted); margin-bottom: 6px; font-weight: 600; }
+.other-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+.other-pill {
+  background: white; border: 1px solid var(--mid);
+  border-radius: 20px; padding: 2px 9px;
+  font-size: 0.76rem; color: #555;
+}
+
+/* Discontinued (nedlagd) inriktning track */
+.inr-track.nedlagd { opacity: 0.45; }
+.inr-track.nedlagd h4 { color: var(--muted); }
+.nedlagd-badge {
+  display: inline-block; margin-left: 8px;
+  font-size: 0.64rem; font-weight: 700; text-transform: uppercase;
+  background: #f5dede; color: #a00; border-radius: 4px;
+  padding: 1px 6px; vertical-align: middle; letter-spacing: 0.3px;
+}
+
+/* IP track course-detail block */
+.track-detail-block {
+  border-top: 1px solid var(--mid);
+  padding: 0;
+  background: white;
+}
+.track-detail-hdr {
+  background: #eef2f7; border-bottom: 1px solid #d0d8e8;
+  padding: 6px 14px;
+  font-size: 0.72rem; font-weight: 700;
+  color: var(--gu-blue); text-transform: uppercase; letter-spacing: 0.4px;
+}
+.track-detail-block .course-row {
+  border-radius: 0; border: none;
+  border-left: 3px solid var(--green);
+  border-bottom: 1px solid #e0ddd7; margin: 0;
+}
+.track-detail-block .course-row:last-child { border-bottom: none; }
+
+@media (max-width: 640px) {
+  .container { padding: 14px; }
+  .tabs { padding: 0 10px; }
+  header { padding: 18px 18px 14px; }
+  .cr-right { flex-wrap: wrap; justify-content: flex-end; gap: 4px; }
+  .inriktning-tracks { grid-template-columns: 1fr; }
+  .inr-track { border-right: none; border-bottom: 1px solid var(--mid); }
+  .inr-track:last-child { border-bottom: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Kursplaner – Programstruktur</h1>
+  <p>Statsvetenskapliga institutionen, Göteborgs universitet · Utbildningsutvärdering 2025–2026</p>
+  <div class="back"><a href="index.html">← Tillbaka till huvudportalen</a></div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('s1stv', this)">
+    Statsvetarprogrammet <span class="code">S1STV</span>
+  </button>
+  <button class="tab-btn" onclick="showTab('maps', this)">
+    Masterprogrammet i statsvetenskap <span class="code">MaPS / S2PSC</span>
+  </button>
+  <button class="tab-btn" onclick="showTab('iagg', this)">
+    International Administration &amp; Global Governance <span class="code">IAGG / S2IAG</span>
+  </button>
+</div>
+
+<div class="container">
+
+<!-- ================================================================ -->
+<!-- S1STV                                                            -->
+<!-- ================================================================ -->
+<div id="tab-s1stv" class="program-panel active">
+
+  <div class="prog-header">
+    <div class="title" style="flex:1">
+      <h2>Statsvetarprogrammet</h2>
+      <p>Politices kandidatexamen · Huvudområde: Statsvetenskap</p>
+      <div class="prog-meta">
+        <span class="meta-chip">180 hp</span>
+        <span class="meta-chip">Grundnivå</span>
+        <span class="meta-chip">S1STV</span>
+        <span class="meta-chip">6 terminer · heltid</span>
+        <span class="meta-chip">Utbildningsplan GU 2024/72 (fr. H2024)</span>
+      </div>
+    </div>
+    <a href="underlag/1_kursplaner/S1STV_Statsvetarprogrammet/pdf_01_Utbildningsplan__pdf_.pdf"
+       class="btn-plan" target="_blank">📄 Utbildningsplan</a>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot obl"></span> Obligatorisk</div>
+    <div class="legend-item"><span class="legend-dot val"></span> Valbar</div>
+    <div class="legend-sep"></div>
+    <div class="legend-item"><span class="doc-link kp" style="opacity:1">Kursplan</span></div>
+    <div class="legend-item"><span class="doc-link kg" style="opacity:1">Guide</span></div>
+    <div class="legend-item"><span class="doc-link ll" style="opacity:1">Litteratur</span></div>
+    <div class="legend-item"><span class="doc-link kr" style="opacity:1">Rapport</span></div>
+  </div>
+
+  <!-- T1 -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">Termin 1</span>
+      <span class="sem-title">Kärnkurser i statsvetenskap</span>
+      <span class="sem-credits">30 hp</span>
+    </div>
+
+    <div class="course-row obl">
+      <span class="cr-code">SK1113</span>
+      <div class="cr-body">
+        <div class="cr-name">Institutioner och aktörer i demokratin</div>
+        <div class="cr-sub">Statsvetenskap G1N</div>
+      </div>
+      <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1113.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK1113_V25.pdf" class="doc-link kg" target="_blank">Guide V25</a>
+          <a href="https://www.gu.se/studera/hitta-utbildning/institutioner-och-aktorer-i-demokratin-sk1113/litteraturlista/e329687a-a1bc-11ef-a309-15d1eab44478" class="doc-link ll" target="_blank">Litteratur V25 ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK1113_Kursrapport_V25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="choice-block">
+      <div class="choice-hdr">Läses båda parallellt <span class="hp">7,5 + 7,5 hp</span></div>
+      <div class="course-row obl">
+        <span class="cr-code">SK1124</span>
+        <div class="cr-body">
+          <div class="cr-name">Politisk teori</div>
+          <div class="cr-sub">Statsvetenskap G1N</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">7,5 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1124.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK1124_Kursrapport_V25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+        </div>
+      </div>
+      </div>
+      <div class="course-row obl">
+        <span class="cr-code">SK1125</span>
+        <div class="cr-body">
+          <div class="cr-name">Internationell politik</div>
+          <div class="cr-sub">Statsvetenskap G1N</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">7,5 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1125.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK1125_V25.pdf" class="doc-link kg" target="_blank">Guide V25</a>
+          <a href="https://www.gu.se/studera/hitta-utbildning/internationell-politik-sk1125/litteraturlista/db31420c-5a4b-11ef-8a42-aff5663d4072" class="doc-link ll" target="_blank">Litteratur V25 ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK1125_Kursrapport_V25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T2 -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">Termin 2</span>
+      <span class="sem-title">Fördjupningskurser i statsvetenskap</span>
+      <span class="sem-credits">30 hp</span>
+    </div>
+
+    <div class="course-row obl">
+      <span class="cr-code">SK1214</span>
+      <div class="cr-body">
+        <div class="cr-name">Demokrati och demokratisering i ett jämförande perspektiv</div>
+        <div class="cr-sub">Statsvetenskap G1F</div>
+      </div>
+      <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1214.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK1214_V25.pdf" class="doc-link kg" target="_blank">Guide V25</a>
+          <a href="https://www.gu.se/studera/hitta-utbildning/demokrati-och-demokratisering-i-ett-jamforande-perspektiv-sk1214/litteraturlista/426fb530-a1be-11ef-a309-15d1eab44478" class="doc-link ll" target="_blank">Litteratur V25 ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK1214_Kursrapport_V25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="choice-block">
+      <div class="choice-hdr">Välj en av dessa <span class="hp">15 hp</span></div>
+      <div class="course-row obl">
+        <span class="cr-code">SK1223</span>
+        <div class="cr-body">
+          <div class="cr-name">Tematisk fördjupning</div>
+          <div class="cr-sub">Statsvetenskap G1F · ges HT och VT</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1223.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK1223_V25.pdf" class="doc-link kg" target="_blank">Guide V25</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK1223_Kursrapport_V25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+        </div>
+      </div>
+      </div>
+      <div class="or-row">eller</div>
+      <div class="course-row obl">
+        <span class="cr-code">SK1224</span>
+        <div class="cr-body">
+          <div class="cr-name">Miljöpolitikens villkor</div>
+          <div class="cr-sub">Statsvetenskap G1F · ges VT</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1224.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK1224_V24.pdf" class="doc-link kg" target="_blank">Guide V24</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK1224_Kursrapport_V25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T3-4 Inriktning -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">Termin 3–4</span>
+      <span class="sem-title">Inriktningsår – välj en inriktning</span>
+      <span class="sem-credits">60 hp</span>
+    </div>
+
+    <div class="inriktning-block">
+      <div class="inriktning-hdr">
+        <h3>Statsvetenskap – inriktningsåret</h3>
+        <p>Statsvetenskapliga institutionen · T3: 30 hp kärnkurser · T4: 30 hp fördjupningskurser</p>
+      </div>
+      <div class="inriktning-tracks">
+        <div class="inr-track nedlagd">
+          <h4>Spår 1: Demokrati, makt och organisation <span class="nedlagd-badge">Nedlagt</span></h4>
+          <div class="track-courses">
+            <div class="track-course-row">
+              <span class="tc-label">T3</span>
+              <span class="tc-name"><strong>SK1215</strong> Delegering av politisk makt: Från folket till folkvalda representanter</span>
+              <span class="tc-hp">7,5 hp</span>
+            </div>
+            <div class="track-course-row">
+              <span class="tc-label">T3</span>
+              <span class="tc-name"><strong>SK1216</strong> Delegering av den verkställande makten: Dilemman och institutionella lösningar</span>
+              <span class="tc-hp">7,5 hp</span>
+            </div>
+            <div class="track-course-row">
+              <span class="tc-label">T3</span>
+              <span class="tc-name"><strong>SK1225</strong> Förvaltningens makt: Problem och möjligheter</span>
+              <span class="tc-hp">15 hp</span>
+            </div>
+            <div class="track-course-row">
+              <span class="tc-label">T4</span>
+              <span class="tc-name"><strong>SK1226</strong> Svensk förvaltning: Traditioner, institutioner och politik</span>
+              <span class="tc-hp">15 hp</span>
+            </div>
+            <div class="track-course-row">
+              <span class="tc-label">T4</span>
+              <span class="tc-name"><em>+ valbara kurser i statsvetenskap</em></span>
+              <span class="tc-hp">15 hp</span>
+            </div>
+          </div>
+          <p class="track-note">Spåret är nedlagt och ges ej längre.</p>
+        </div>
+        <div class="inr-track">
+          <h4>Spår 2: Internationell Politik</h4>
+          <div class="track-courses">
+            <div class="track-course-row">
+              <span class="tc-label">T3</span>
+              <span class="tc-name"><strong>SK1217</strong> Världspolitiken: ordning, styrning, samarbete och diplomati</span>
+              <span class="tc-hp">15 hp</span>
+            </div>
+            <div class="track-course-row">
+              <span class="tc-label">T3</span>
+              <span class="tc-name"><strong>SK1127</strong> Conflict and Conflict Resolution</span>
+              <span class="tc-hp">7,5 hp</span>
+            </div>
+            <div class="track-course-row">
+              <span class="tc-label">T3</span>
+              <span class="tc-name"><strong>SK1136</strong> Foreign Policy Analysis</span>
+              <span class="tc-hp">7,5 hp</span>
+            </div>
+            <div class="track-course-row">
+              <span class="tc-label">T4</span>
+              <span class="tc-name"><strong>SK1227</strong> Institutionell utveckling och demokratisering i ett internationellt perspektiv</span>
+              <span class="tc-hp">15 hp</span>
+            </div>
+            <div class="track-course-row">
+              <span class="tc-label">T4</span>
+              <span class="tc-name"><strong>SK1421</strong> Statsvetaren i yrkeslivet</span>
+              <span class="tc-hp">15 hp</span>
+            </div>
+          </div>
+          <p class="track-note">Platsgaranti. Ges normalt varje termin.</p>
+        </div>
+      </div>
+      <div class="inriktning-others">
+        <p>Övriga inriktningsalternativ (60 hp – kurser ges av respektive institution):</p>
+        <div class="other-pills">
+          <span class="other-pill">Nationalekonomi</span>
+          <span class="other-pill">Statistik</span>
+          <span class="other-pill">Psykologi</span>
+          <span class="other-pill">Sociologi</span>
+          <span class="other-pill">Medie- och kommunikationsvetenskap</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="track-detail-block">
+      <div class="track-detail-hdr">Spår 2: Internationell Politik – kursdokumentation</div>
+      <div class="course-row obl">
+        <span class="cr-code">SK1217</span>
+        <div class="cr-body">
+          <div class="cr-name">Världspolitiken: ordning, styrning, samarbete och diplomati</div>
+          <div class="cr-sub">Statsvetenskap G2F · T3 · 15 hp</div>
+        </div>
+        <div class="cr-right">
+          <span class="cr-hp">15 hp</span>
+          <div class="cr-docs">
+            <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1217.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+            <a href="underlag/2_kursguider/kursguide_SK1217_V25.pdf" class="doc-link kg" target="_blank">Guide V25</a>
+            <a href="underlag/3_litteraturlistor/littlista_SK1217_V25.pdf" class="doc-link ll" target="_blank">Litteratur V25</a>
+            <a href="underlag/9_kursrapporter/kursrapport_SK1217_Kursrapport_V25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+          </div>
+        </div>
+      </div>
+      <div class="course-row obl">
+        <span class="cr-code">SK1127</span>
+        <div class="cr-body">
+          <div class="cr-name">Conflict and Conflict Resolution</div>
+          <div class="cr-sub">Statsvetenskap G2F · T3 · 7,5 hp</div>
+        </div>
+        <div class="cr-right">
+          <span class="cr-hp">7,5 hp</span>
+          <div class="cr-docs">
+            <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1127.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+            <a href="underlag/2_kursguider/kursguide_SK1127_V25.pdf" class="doc-link kg" target="_blank">Guide V25</a>
+            <a href="underlag/3_litteraturlistor/littlista_SK1127_V25.pdf" class="doc-link ll" target="_blank">Litteratur V25</a>
+            <a href="underlag/9_kursrapporter/kursrapport_SK1127_Course_report_spring_25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+          </div>
+        </div>
+      </div>
+      <div class="course-row obl">
+        <span class="cr-code">SK1136</span>
+        <div class="cr-body">
+          <div class="cr-name">Foreign Policy Analysis</div>
+          <div class="cr-sub">Statsvetenskap G2F · T3 · 7,5 hp</div>
+        </div>
+        <div class="cr-right">
+          <span class="cr-hp">7,5 hp</span>
+          <div class="cr-docs">
+            <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1136.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+            <a href="underlag/2_kursguider/kursguide_SK1136_V25.pdf" class="doc-link kg" target="_blank">Guide V25</a>
+            <a href="https://www.gu.se/en/study-gothenburg/foreign-policy-analysis-sk1136/reading-list/f0497850-da45-11ef-aac1-c2c672b1422b" class="doc-link ll" target="_blank">Litteratur V25 ↗</a>
+            <a href="underlag/9_kursrapporter/kursrapport_SK1136_Course_report_spring_25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+          </div>
+        </div>
+      </div>
+      <div class="course-row obl">
+        <span class="cr-code">SK1227</span>
+        <div class="cr-body">
+          <div class="cr-name">Institutionell utveckling och demokratisering i ett internationellt perspektiv</div>
+          <div class="cr-sub">Statsvetenskap G2F · T4 · 15 hp</div>
+        </div>
+        <div class="cr-right">
+          <span class="cr-hp">15 hp</span>
+          <div class="cr-docs">
+            <span class="doc-link kp unavail">Kursplan saknas</span>
+            <a href="https://www.gu.se/studera/hitta-utbildning/institutionell-utveckling-och-demokratisering-i-ett-internationellt-perspektiv-sk1227/litteraturlista/c370a773-b173-11ef-824e-368a86ab4da1" class="doc-link ll" target="_blank">Litteratur ↗</a>
+            <a href="underlag/9_kursrapporter/kursrapport_SK1227_Course_report_spring_25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+          </div>
+        </div>
+      </div>
+      <div class="course-row obl">
+        <span class="cr-code">SK1421</span>
+        <div class="cr-body">
+          <div class="cr-name">Statsvetaren i yrkeslivet</div>
+          <div class="cr-sub">Statsvetenskap G2F · T4 · 15 hp</div>
+        </div>
+        <div class="cr-right">
+          <span class="cr-hp">15 hp</span>
+          <div class="cr-docs">
+            <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1421.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+            <a href="https://www.gu.se/studera/hitta-utbildning/statsvetaren-i-yrkeslivet-sk1421/litteraturlista/19d46f14-ab3a-11ef-a240-57578bd7405a" class="doc-link ll" target="_blank">Litteratur V25 ↗</a>
+            <a href="underlag/9_kursrapporter/kursrapport_SK1421_Kursrapport_V25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T5 -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">Termin 5</span>
+      <span class="sem-title">Valbar termin</span>
+      <span class="sem-credits">30 hp</span>
+    </div>
+    <div class="info-box">
+      Termin 5 och 6 kan byta ordning. Studenten väljer fritt bland praktik, valbara kurser eller utbytesstudier.
+    </div>
+
+    <div class="choice-block">
+      <div class="choice-hdr">Praktik – välj ett alternativ</div>
+      <div class="course-row val">
+        <span class="cr-code">SK1412</span>
+        <div class="cr-body">
+          <div class="cr-name">Praktik för Statsvetarprogrammet</div>
+          <div class="cr-sub">Halvfart – kombineras med annan kurs om 15 hp</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1412.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK1412_H24.pdf" class="doc-link kg" target="_blank">Guide H24</a>
+        </div>
+      </div>
+      </div>
+      <div class="or-row">eller (ersätter hela T5)</div>
+      <div class="course-row val">
+        <span class="cr-code">SK1411</span>
+        <div class="cr-body">
+          <div class="cr-name">Praktik för Statsvetarprogrammet (helfart)</div>
+          <div class="cr-sub">Helfart – ersätter hela T5</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">30 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1411.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK1411_H24.pdf" class="doc-link kg" target="_blank">Guide H24</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK1411_Kursrapport_V25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="choice-block">
+      <div class="choice-hdr">Valbara kurser inom Statsvetarprogrammet</div>
+      <div class="course-row val">
+        <span class="cr-code">SK1421</span>
+        <div class="cr-body">
+          <div class="cr-name">Statsvetaren i yrkeslivet</div>
+          <div class="cr-sub">Statsvetenskap G2F</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1421.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="https://www.gu.se/studera/hitta-utbildning/statsvetaren-i-yrkeslivet-sk1421/litteraturlista/19d46f14-ab3a-11ef-a240-57578bd7405a" class="doc-link ll" target="_blank">Litteratur V25 ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK1421_Kursrapport_V25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+        </div>
+      </div>
+      </div>
+      <div class="course-row val">
+        <span class="cr-code">SK1422</span>
+        <div class="cr-body">
+          <div class="cr-name">Samhällsvetaren i yrkeslivet</div>
+          <div class="cr-sub">Statsvetenskap G2F</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1422.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T6 -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">Termin 6</span>
+      <span class="sem-title">Metod och examensarbete</span>
+      <span class="sem-credits">30 hp</span>
+    </div>
+
+    <div class="course-row obl">
+      <span class="cr-code">SK1313</span>
+      <div class="cr-body">
+        <div class="cr-name">Metod inklusive uppsatssamordning i statsvetenskap</div>
+        <div class="cr-sub">Statsvetenskap G2F</div>
+      </div>
+      <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1313.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK1313_V26.pdf" class="doc-link kg" target="_blank">Guide V26</a>
+          <a href="https://www.gu.se/studera/hitta-utbildning/metod-inklusive-uppsatssamordning-i-statsvetenskap-sk1313/litteraturlista/93eac0bc-2981-11ef-a2a0-4c1db4504bb5" class="doc-link ll" target="_blank">Litteratur ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK1313_Kursrapport_V25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+        </div>
+      </div>
+    </div>
+    <div class="course-row obl">
+      <span class="cr-code">SK1523</span>
+      <div class="cr-body">
+        <div class="cr-name">Examensarbete i statsvetenskap</div>
+        <div class="cr-sub">Statsvetenskap G2E</div>
+      </div>
+      <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1523.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK1523_H24.docx" class="doc-link kg" target="_blank">Guide H24</a>
+          <a href="underlag/3_litteraturlistor/littlista_SK1523_H24.pdf" class="doc-link ll" target="_blank">Litteratur H24</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK1523-SK1524_Kursrapport_V25.pdf" class="doc-link kr" target="_blank">Rapport V25</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-s1stv -->
+
+
+<!-- ================================================================ -->
+<!-- MaPS                                                             -->
+<!-- ================================================================ -->
+<div id="tab-maps" class="program-panel">
+
+  <div class="prog-header">
+    <div class="title" style="flex:1">
+      <h2>Masterprogrammet i statsvetenskap (MaPS)</h2>
+      <p>Filosofie masterexamen · Huvudområde: Statsvetenskap</p>
+      <div class="prog-meta">
+        <span class="meta-chip">120 hp</span>
+        <span class="meta-chip">Avancerad nivå</span>
+        <span class="meta-chip">S2PSC</span>
+        <span class="meta-chip">4 terminer · heltid</span>
+        <span class="meta-chip">Utbildningsplan GU 2025/3617 (fr. H2026)</span>
+      </div>
+    </div>
+    <a href="underlag/1_kursplaner/S2PSC_MaPS/kursplaner/kursplan_01_Program_Syllabus.html"
+       class="btn-plan" target="_blank">🌐 Utbildningsplan</a>
+  </div>
+
+  <div class="warn-box">
+    <strong>Ny utbildningsplan fr. H2026 (fastställd 2025-12-19).</strong>
+    Kurserna SK2122, SK2302, SK2301 och SK2303 är nya – kursplaner publiceras av GU inför HT2026.
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot obl"></span> Obligatorisk</div>
+    <div class="legend-item"><span class="legend-dot val"></span> Valbar / semi-valbar</div>
+    <div class="legend-item"><span class="legend-dot new"></span> Ny H2026 – kursplan saknas</div>
+    <div class="legend-sep"></div>
+    <div class="legend-item"><span class="doc-link kp" style="opacity:1">Kursplan</span></div>
+    <div class="legend-item"><span class="doc-link kg" style="opacity:1">Guide</span></div>
+    <div class="legend-item"><span class="doc-link ll" style="opacity:1">Litteratur</span></div>
+    <div class="legend-item"><span class="doc-link kr" style="opacity:1">Rapport</span></div>
+  </div>
+
+  <!-- T1 MaPS -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">Termin 1</span>
+      <span class="sem-title">Kärnkurser och metodkurs</span>
+      <span class="sem-credits">30 hp</span>
+    </div>
+
+    <div class="choice-block">
+      <div class="choice-hdr">Obligatoriska kärnkurser – läses båda <span class="hp">7,5 + 7,5 hp</span></div>
+      <div class="course-row new">
+        <span class="cr-code">SK2122</span>
+        <div class="cr-body">
+          <div class="cr-name">Introduction to Political Science Analysis</div>
+          <div class="cr-sub">Avancerad nivå · Ny kurs H2026</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">7,5 hp</span>
+        <span class="badge-new">Ny H2026</span>
+        <div class="cr-docs">
+          <span class="doc-link kp unavail">Ej publicerad</span>
+        </div>
+      </div>
+      </div>
+      <div class="course-row new">
+        <span class="cr-code">SK2302</span>
+        <div class="cr-body">
+          <div class="cr-name">Research Design in Political Science</div>
+          <div class="cr-sub">Avancerad nivå · Ny kurs H2026</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">7,5 hp</span>
+        <span class="badge-new">Ny H2026</span>
+        <div class="cr-docs">
+          <span class="doc-link kp unavail">Ej publicerad</span>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="choice-block">
+      <div class="choice-hdr">Metodkurs – välj en <span class="hp">15 hp</span></div>
+      <div class="course-row new">
+        <span class="cr-code">SK2301</span>
+        <div class="cr-body">
+          <div class="cr-name">Advanced Quantitative Methods in the Social Sciences</div>
+          <div class="cr-sub">Avancerad nivå · Ny kurs H2026</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <span class="badge-new">Ny H2026</span>
+        <div class="cr-docs">
+          <span class="doc-link kp unavail">Ej publicerad</span>
+        </div>
+      </div>
+      </div>
+      <div class="or-row">eller</div>
+      <div class="course-row obl">
+        <span class="cr-code">SF2324</span>
+        <div class="cr-body">
+          <div class="cr-name">Introduktion till tillämpad forskningsdesign och kvantitativa metoder för samhällsvetare</div>
+          <div class="cr-sub">Avancerad nivå</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SF2324.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SF2324_H25.docx" class="doc-link kg" target="_blank">Guide H25</a>
+          <a href="underlag/3_litteraturlistor/littlista_SF2324_H25.docx" class="doc-link ll" target="_blank">Litteratur H25</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SF2324_Course_report_H22.pdf" class="doc-link kr" target="_blank">Rapport H22</a>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T2 MaPS -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">Termin 2</span>
+      <span class="sem-title">Fördjupningskurser</span>
+      <span class="sem-credits">30 hp</span>
+    </div>
+
+    <div class="choice-block">
+      <div class="choice-hdr">Välj 2 fördjupningskurser à 15 hp <span class="hp">15 + 15 hp</span></div>
+      <div class="course-row val">
+        <span class="cr-code">SK2212</span>
+        <div class="cr-body">
+          <div class="cr-name">The Quality of Government in a Comparative Perspective</div>
+          <div class="cr-sub">Statsvetenskap A1F</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK2212.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK2212_V25.pdf" class="doc-link kg" target="_blank">Guide V25</a>
+          <a href="https://www.gu.se/en/study-gothenburg/the-quality-of-government-in-a-comparative-perspective-sk2212/reading-list/14d075b9-a5a4-11ef-b71a-5348ec534cc8" class="doc-link ll" target="_blank">Litteratur V25 ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_Kursrapport_SK2212_V24.pdf" class="doc-link kr" target="_blank">Rapport V24</a>
+        </div>
+      </div>
+      </div>
+      <div class="course-row val">
+        <span class="cr-code">SF2222</span>
+        <div class="cr-body">
+          <div class="cr-name">Citizens, Politicians and the Media: Evaluating Democratic Processes</div>
+          <div class="cr-sub">Avancerad nivå</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SF2222.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SF2222_V25.pdf" class="doc-link kg" target="_blank">Guide V25</a>
+          <a href="https://www.gu.se/en/study-gothenburg/citizens-politicians-and-the-media-evaluating-democratic-processes-sf2222/reading-list/5cdc226d-a597-11ef-b71a-5348ec534cc8" class="doc-link ll" target="_blank">Litteratur V26 ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SF2222_Course_Report_2025.pdf" class="doc-link kr" target="_blank">Rapport 2025</a>
+        </div>
+      </div>
+      </div>
+      <div class="course-row val">
+        <span class="cr-code">SK2221</span>
+        <div class="cr-body">
+          <div class="cr-name">Environmental Politics and Institutions</div>
+          <div class="cr-sub">Avancerad nivå</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK2221.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK2221_Course_Report_2024.pdf" class="doc-link kr" target="_blank">Rapport 2024</a>
+        </div>
+      </div>
+      </div>
+      <div class="course-row val">
+        <span class="cr-code">SK2222</span>
+        <div class="cr-body">
+          <div class="cr-name">Varieties of Democracy and Democratization</div>
+          <div class="cr-sub">Avancerad nivå</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK2222.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK2222_V25.pdf" class="doc-link kg" target="_blank">Guide V25</a>
+          <a href="https://www.gu.se/studera/hitta-utbildning/varianter-pa-demokrati-och-demokratisering-sk2222/litteraturlista/1183d750-dcbc-11ef-aac1-c2c672b1422b" class="doc-link ll" target="_blank">Litteratur V25 ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK2222_Course_Report_2025.pdf" class="doc-link kr" target="_blank">Rapport 2025</a>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="or-sep">— eller alternativt —</div>
+
+    <div class="course-row val">
+      <span class="cr-code">SK2420</span>
+      <div class="cr-body">
+        <div class="cr-name">Praktik / Internship (helfart – ersätter hela T2)</div>
+        <div class="cr-sub">Statsvetenskap avancerad nivå</div>
+      </div>
+      <div class="cr-right">
+        <span class="cr-hp">30 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK2420.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T3 MaPS -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">Termin 3</span>
+      <span class="sem-title">Valbara kurser</span>
+      <span class="sem-credits">30 hp</span>
+    </div>
+
+    <div class="choice-block">
+      <div class="choice-hdr">Välj kurser för totalt 30 hp <span class="hp">30 hp</span></div>
+      <div class="course-row val">
+        <span class="cr-code">SK2211</span>
+        <div class="cr-body">
+          <div class="cr-name">The Performance of Democracies</div>
+          <div class="cr-sub">Statsvetenskap A1F</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK2211.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK2211_H24.pdf" class="doc-link kg" target="_blank">Guide H24</a>
+          <a href="https://www.gu.se/en/study-gothenburg/the-performance-of-democracies-sk2211/reading-list/0261073f-298f-11ef-a2a0-4c1db4504bb5" class="doc-link ll" target="_blank">Litteratur H24 ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK2211_Course_Report_2024.pdf" class="doc-link kr" target="_blank">Rapport 2024</a>
+        </div>
+      </div>
+      </div>
+      <div class="course-row val">
+        <span class="cr-code">EU2210</span>
+        <div class="cr-body">
+          <div class="cr-name">Europeisk miljö- och energipolitik</div>
+          <div class="cr-sub">European Environment and Energy · Avancerad nivå</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_EU2210.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="https://www.gu.se/studera/hitta-utbildning/europeisk-miljo-och-energipolitik-eu2210/litteraturlista/fb4544bc-16bf-11ef-a272-18dd79e54a0c" class="doc-link ll" target="_blank">Litteratur ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_EU2210_Course_Report_HT23.pdf" class="doc-link kr" target="_blank">Rapport HT23</a>
+        </div>
+      </div>
+      </div>
+      <div class="course-row val">
+        <span class="cr-code">SK2412</span>
+        <div class="cr-body">
+          <div class="cr-name">Praktik / Internship</div>
+          <div class="cr-sub">Statsvetenskap avancerad nivå</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK2412.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+        </div>
+      </div>
+      </div>
+      <div class="course-row new">
+        <span class="cr-code">SK2303</span>
+        <div class="cr-body">
+          <div class="cr-name">Methodological Specialization</div>
+          <div class="cr-sub">Avancerad nivå · Ny kurs H2026</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <span class="badge-new">Ny H2026</span>
+        <div class="cr-docs">
+          <span class="doc-link kp unavail">Ej publicerad</span>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T4 MaPS -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">Termin 4</span>
+      <span class="sem-title">Masteruppsats</span>
+      <span class="sem-credits">30 hp</span>
+    </div>
+
+    <div class="course-row obl">
+      <span class="cr-code">SK2532</span>
+      <div class="cr-body">
+        <div class="cr-name">Masteruppsats i statsvetenskap</div>
+        <div class="cr-sub">Master's thesis in Political Science · Statsvetenskap A2E</div>
+      </div>
+      <div class="cr-right">
+        <span class="cr-hp">30 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK2532.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK2532_Course_Report_2022.pdf" class="doc-link kr" target="_blank">Rapport 2022</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tidigare utbildningsplan MaPS -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">T1–T2</span>
+      <span class="sem-title">Kurser givna t.o.m. HT2025 (äldre utbildningsplan)</span>
+      <span class="sem-credits">–</span>
+    </div>
+    <div class="info-box">
+      Nedanstående kurser gavs under utbildningsplanen som gällde t.o.m. HT2025 och ingår i utvärderingsunderlaget. I den nya utbildningsplanen (fr. HT2026) ersätts SK2121 av SK2122 + SK2302, och SF2321 ersätts av SF2324/SK2301.
+    </div>
+
+    <div class="choice-block">
+      <div class="choice-hdr">Tidigare kurser i utvärderingsperioden</div>
+      <div class="course-row obl">
+        <span class="cr-code">SK2121</span>
+        <div class="cr-body">
+          <div class="cr-name">Political Science Analysis</div>
+          <div class="cr-sub">Statsvetenskap A1N · T1, 15 hp, obligatorisk t.o.m. HT2025</div>
+        </div>
+        <div class="cr-right">
+          <span class="cr-hp">15 hp</span>
+          <div class="cr-docs">
+            <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK2121.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+            <a href="underlag/2_kursguider/kursguide_SK2121_H25.pdf" class="doc-link kg" target="_blank">Guide H25</a>
+            <a href="underlag/9_kursrapporter/kursrapport_course_report_SK2121_HT24.pdf" class="doc-link kr" target="_blank">Rapport H24</a>
+          </div>
+        </div>
+      </div>
+      <div class="course-row obl">
+        <span class="cr-code">SF2321</span>
+        <div class="cr-body">
+          <div class="cr-name">Applied Statistical Analysis</div>
+          <div class="cr-sub">Statistik A1N · T1, 15 hp, metodkurs t.o.m. HT2025</div>
+        </div>
+        <div class="cr-right">
+          <span class="cr-hp">15 hp</span>
+          <div class="cr-docs">
+            <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SF2321.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+            <a href="underlag/2_kursguider/kursguide_SF2321_H25.pdf" class="doc-link kg" target="_blank">Guide H25</a>
+            <a href="underlag/9_kursrapporter/kursrapport_SF2321_Course_report__2024.pdf" class="doc-link kr" target="_blank">Rapport H24</a>
+          </div>
+        </div>
+      </div>
+      <div class="course-row val">
+        <span class="cr-code">SK2223</span>
+        <div class="cr-body">
+          <div class="cr-name">Environmental Problems within Social Science</div>
+          <div class="cr-sub">Statsvetenskap A1F · T2, 15 hp, valbar t.o.m. VT2025</div>
+        </div>
+        <div class="cr-right">
+          <span class="cr-hp">15 hp</span>
+          <div class="cr-docs">
+            <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK2223.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+            <a href="underlag/2_kursguider/kursguide_SK2223_V25.docx" class="doc-link kg" target="_blank">Guide V25</a>
+            <a href="https://www.gu.se/en/study-gothenburg/environmental-problems-within-social-science-from-tragedy-of-the-commons-to-planetary-boundaries-sk2223/reading-list/c8fe29d5-a1bf-11ef-a309-15d1eab44478" class="doc-link ll" target="_blank">Litteratur V25 ↗</a>
+            <a href="underlag/9_kursrapporter/kursrapport_SK2223_Course_Report_2024.pdf" class="doc-link kr" target="_blank">Rapport 2024</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /tab-maps -->
+
+
+<!-- ================================================================ -->
+<!-- IAGG                                                             -->
+<!-- ================================================================ -->
+<div id="tab-iagg" class="program-panel">
+
+  <div class="prog-header">
+    <div class="title" style="flex:1">
+      <h2>Master's Programme in International Administration and Global Governance (IAGG)</h2>
+      <p>Filosofie masterexamen · Huvudområde: Internationell administration och global samhällsstyrning</p>
+      <div class="prog-meta">
+        <span class="meta-chip">120 hp</span>
+        <span class="meta-chip">Avancerad nivå</span>
+        <span class="meta-chip">S2IAG</span>
+        <span class="meta-chip">4 terminer · heltid</span>
+        <span class="meta-chip">Utbildningsplan GU 2025/3618 (fr. H2026)</span>
+      </div>
+    </div>
+    <a href="underlag/1_kursplaner/S2IAG_IAGG/kursplaner/kursplan_01_Program_Syllabus.html"
+       class="btn-plan" target="_blank">🌐 Utbildningsplan</a>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot obl"></span> Obligatorisk</div>
+    <div class="legend-item"><span class="legend-dot val"></span> Valbar / semi-valbar</div>
+    <div class="legend-item"><span class="legend-dot new"></span> Ny H2026 – kursplan saknas</div>
+    <div class="legend-sep"></div>
+    <div class="legend-item"><span class="doc-link kp" style="opacity:1">Kursplan</span></div>
+    <div class="legend-item"><span class="doc-link kg" style="opacity:1">Guide</span></div>
+    <div class="legend-item"><span class="doc-link ll" style="opacity:1">Litteratur</span></div>
+    <div class="legend-item"><span class="doc-link kr" style="opacity:1">Rapport</span></div>
+  </div>
+
+  <!-- T1 IAGG -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">Termin 1</span>
+      <span class="sem-title">Obligatoriska kärnkurser</span>
+      <span class="sem-credits">30 hp</span>
+    </div>
+
+    <div class="course-row obl">
+      <span class="cr-code">AG2110</span>
+      <div class="cr-body">
+        <div class="cr-name">Theoretical and Historical Perspectives on Global Governance</div>
+        <div class="cr-sub">International Administration and Global Governance A1N</div>
+      </div>
+      <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_AG2110.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_AG2110_H24.pdf" class="doc-link kg" target="_blank">Guide H24</a>
+          <a href="underlag/9_kursrapporter/kursrapport_Course_Report_AG2110_2025.pdf" class="doc-link kr" target="_blank">Rapport 2025</a>
+        </div>
+      </div>
+    </div>
+    <div class="course-row obl">
+      <span class="cr-code">AG2120</span>
+      <div class="cr-body">
+        <div class="cr-name">International Administration and Policy</div>
+        <div class="cr-sub">International Administration and Global Governance A1N</div>
+      </div>
+      <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_AG2120.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_AG2120_H24.pdf" class="doc-link kg" target="_blank">Guide H24</a>
+          <a href="underlag/9_kursrapporter/kursrapport_AG2120_Course_Report_2023.pdf" class="doc-link kr" target="_blank">Rapport 2023</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T2 IAGG -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">Termin 2</span>
+      <span class="sem-title">Fördjupning och praktikval</span>
+      <span class="sem-credits">30 hp</span>
+    </div>
+    <div class="info-box">
+      Studenten väljer <strong>fördjupningskurs (15 hp) + praktik (15 hp)</strong>, ELLER <strong>heltidspraktik (30 hp)</strong>, ELLER <strong>utbytesstudier (30 hp)</strong>. Fördjupnings- och metodkurser kan fördelas mellan T2 och T3.
+    </div>
+
+    <div class="course-row semi">
+      <span class="cr-code">SK2212</span>
+      <div class="cr-body">
+        <div class="cr-name">The Quality of Government in a Comparative Perspective</div>
+        <div class="cr-sub">Statsvetenskap A1F · Fördjupningskurs (semi-valbar)</div>
+      </div>
+      <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK2212.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK2212_V25.pdf" class="doc-link kg" target="_blank">Guide V25</a>
+          <a href="https://www.gu.se/en/study-gothenburg/the-quality-of-government-in-a-comparative-perspective-sk2212/reading-list/14d075b9-a5a4-11ef-b71a-5348ec534cc8" class="doc-link ll" target="_blank">Litteratur V25 ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_Kursrapport_SK2212_V24.pdf" class="doc-link kr" target="_blank">Rapport V24</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="choice-block">
+      <div class="choice-hdr">Praktik – välj ett alternativ <span class="hp">15 eller 30 hp</span></div>
+      <div class="course-row val">
+        <span class="cr-code">AG2440</span>
+        <div class="cr-body">
+          <div class="cr-name">Internship in International Administration and Global Governance</div>
+          <div class="cr-sub">Halvfart</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_AG2440.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+        </div>
+      </div>
+      </div>
+      <div class="or-row">eller (ersätter hela T2)</div>
+      <div class="course-row val">
+        <span class="cr-code">AG2450</span>
+        <div class="cr-body">
+          <div class="cr-name">Internship in International Administration and Global Governance (helfart)</div>
+          <div class="cr-sub">Heltidspraktik – ersätter hela T2</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">30 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_AG2450.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T3 IAGG -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">Termin 3</span>
+      <span class="sem-title">Fördjupning och metod</span>
+      <span class="sem-credits">30 hp</span>
+    </div>
+    <div class="info-box">
+      Under T2 och T3 sammantaget väljer studenten minst en semi-valbar fördjupningskurs <strong>och</strong> en metodkurs. Fördelningen mellan terminerna är flexibel.
+    </div>
+
+    <div class="choice-block">
+      <div class="choice-hdr">Semi-valbara fördjupningskurser – välj minst en <span class="hp">15 hp / kurs</span></div>
+      <div class="course-row val">
+        <span class="cr-code">SK2211</span>
+        <div class="cr-body">
+          <div class="cr-name">The Performance of Democracies</div>
+          <div class="cr-sub">Statsvetenskap A1F</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SK2211.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SK2211_H24.pdf" class="doc-link kg" target="_blank">Guide H24</a>
+          <a href="https://www.gu.se/en/study-gothenburg/the-performance-of-democracies-sk2211/reading-list/0261073f-298f-11ef-a2a0-4c1db4504bb5" class="doc-link ll" target="_blank">Litteratur H24 ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SK2211_Course_Report_2024.pdf" class="doc-link kr" target="_blank">Rapport 2024</a>
+        </div>
+      </div>
+      </div>
+      <div class="course-row val">
+        <span class="cr-code">EU2210</span>
+        <div class="cr-body">
+          <div class="cr-name">Europeisk miljö- och energipolitik</div>
+          <div class="cr-sub">European Environment and Energy · Avancerad nivå</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_EU2210.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="https://www.gu.se/studera/hitta-utbildning/europeisk-miljo-och-energipolitik-eu2210/litteraturlista/fb4544bc-16bf-11ef-a272-18dd79e54a0c" class="doc-link ll" target="_blank">Litteratur ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_EU2210_Course_Report_HT23.pdf" class="doc-link kr" target="_blank">Rapport HT23</a>
+        </div>
+      </div>
+      </div>
+      <div class="course-row val">
+        <span class="cr-code">EU2215</span>
+        <div class="cr-body">
+          <div class="cr-name">Europa i världen</div>
+          <div class="cr-sub">Europe in the World · Avancerad nivå</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_EU2215.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="https://www.gu.se/studera/hitta-utbildning/europa-i-varlden-eu2215/litteraturlista/54b91961-5fb9-11ef-be09-fe51c2884131" class="doc-link ll" target="_blank">Litteratur ↗</a>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="choice-block">
+      <div class="choice-hdr">Metodkurs – välj en <span class="hp">15 hp</span></div>
+      <div class="course-row val">
+        <span class="cr-code">SF2323</span>
+        <div class="cr-body">
+          <div class="cr-name">Tillämpade kvalitativa forskningsmetoder, problem och design</div>
+          <div class="cr-sub">Applied Qualitative Research Methods · Avancerad nivå</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SF2323.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="https://www.gu.se/en/study-gothenburg/applied-qualitative-research-methods-problems-and-design-sf2323/reading-list/d4559ffa-5a41-11ef-8a42-aff5663d4072" class="doc-link ll" target="_blank">Litteratur ↗</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SF2323_Course_Report_H23.pdf" class="doc-link kr" target="_blank">Rapport H23</a>
+        </div>
+      </div>
+      </div>
+      <div class="course-row val">
+        <span class="cr-code">SF2324</span>
+        <div class="cr-body">
+          <div class="cr-name">Introduktion till tillämpad forskningsdesign och kvantitativa metoder för samhällsvetare</div>
+          <div class="cr-sub">Avancerad nivå</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_SF2324.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/2_kursguider/kursguide_SF2324_H25.docx" class="doc-link kg" target="_blank">Guide H25</a>
+          <a href="underlag/3_litteraturlistor/littlista_SF2324_H25.docx" class="doc-link ll" target="_blank">Litteratur H25</a>
+          <a href="underlag/9_kursrapporter/kursrapport_SF2324_Course_report_H22.pdf" class="doc-link kr" target="_blank">Rapport H22</a>
+        </div>
+      </div>
+      </div>
+      <div class="course-row new">
+        <span class="cr-code">SK2301</span>
+        <div class="cr-body">
+          <div class="cr-name">Advanced Quantitative Methods in the Social Sciences</div>
+          <div class="cr-sub">Avancerad nivå · Ny kurs H2026</div>
+        </div>
+        <div class="cr-right">
+        <span class="cr-hp">15 hp</span>
+        <span class="badge-new">Ny H2026</span>
+        <div class="cr-docs">
+          <span class="doc-link kp unavail">Ej publicerad</span>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- T4 IAGG -->
+  <div class="semester">
+    <div class="sem-header">
+      <span class="sem-num">Termin 4</span>
+      <span class="sem-title">Masteruppsats</span>
+      <span class="sem-credits">30 hp</span>
+    </div>
+
+    <div class="course-row obl">
+      <span class="cr-code">AG2500</span>
+      <div class="cr-body">
+        <div class="cr-name">Master's Thesis for International Administration and Global Governance</div>
+        <div class="cr-sub">Masteruppsats · International Administration and Global Governance A2E</div>
+      </div>
+      <div class="cr-right">
+        <span class="cr-hp">30 hp</span>
+        <div class="cr-docs">
+          <a href="underlag/1_kursplaner/kursplaner_individuella/kursplan_AG2500.pdf" class="doc-link kp" target="_blank">Kursplan</a>
+          <a href="underlag/9_kursrapporter/kursrapport_AG2500_Course_Report_2024.docx" class="doc-link kr" target="_blank">Rapport 2024</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn-box" style="margin-top:12px;">
+    <strong>IAGG Double Degree – University of Konstanz:</strong> Programmet erbjuds även som "double degree" med University of Konstanz, Tyskland. Studenter antas separat och läser år 1 i Konstanz, år 2 i Göteborg.
+  </div>
+
+</div><!-- /tab-iagg -->
+
+</div><!-- /container -->
+
+<script>
+function showTab(prog, btn) {
+  document.querySelectorAll('.program-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + prog).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

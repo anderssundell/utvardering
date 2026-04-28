@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Examinationsuppgifter och bedömningskriterier – Statsvetarprogrammet</title>
+<link rel="stylesheet" href="https://use.typekit.net/zkx2sji.css">
+<style>
+  :root {
+    --dark: #24273a;
+    --accent: #e2005e;
+    --link: #0077cc;
+    --bg: #fefefe;
+    --border: #e4e4e4;
+    --text: #24273a;
+    --muted: #737272;
+    --guide: #2a6a4a;
+    --ok: #2d7a45;
+    --ok-bg: #e8f5ec;
+    --warn: #8a6000;
+    --warn-bg: #fdf6e3;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: acumin-pro, Helvetica, sans-serif; font-weight: 300; font-size: 1rem; color: var(--text); background: var(--bg); line-height: 1.55; }
+  .topbar { background: var(--dark); padding: 0.6rem 2.5rem; font-size: 0.875rem; }
+  .topbar a { color: rgba(254,254,254,0.6); text-decoration: none; font-weight: 300; }
+  .topbar a:hover { color: #fff; }
+
+  .container { max-width: 1040px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+  h1 { font-weight: 300; font-size: 2rem; margin-bottom: 0.5rem; }
+  .subtitle { font-size: 1rem; color: var(--muted); margin-bottom: 2rem; }
+
+  .intro { font-size: 0.9375rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.65; max-width: 780px; }
+  .intro p { margin-bottom: 0.6rem; }
+  .intro strong { color: var(--text); font-weight: 500; }
+
+  h2 { font-size: 0.8125rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin: 2.25rem 0 0.75rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+
+  /* Summary stats */
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.85rem 1rem;
+  }
+  .stat-card .num {
+    font-size: 1.5rem;
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.15;
+  }
+  .stat-card .label {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+    line-height: 1.35;
+  }
+
+  /* Term group */
+  .term-group { margin-bottom: 1.5rem; }
+  .term-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text);
+    margin: 1.25rem 0 0.5rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 2px solid var(--dark);
+  }
+
+  /* Course row */
+  .crow {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.6rem;
+    background: #fff;
+  }
+  .crow-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+  .crow-code {
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 0.8125rem;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+  .crow-name {
+    flex: 1;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    min-width: 200px;
+  }
+  .crow-guide {
+    font-size: 0.75rem;
+    color: var(--guide);
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .crow-guide:hover { text-decoration: underline; }
+
+  .crow-grid {
+    display: grid;
+    grid-template-columns: 1.7fr 0.6fr 0.8fr;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    align-items: start;
+  }
+  @media (max-width: 700px) {
+    .crow-grid { grid-template-columns: 1fr; }
+  }
+  .crow-grid .label {
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 0.2rem;
+  }
+
+  .comp-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+  .comp-list li {
+    padding: 0.1rem 0;
+    color: var(--text);
+  }
+  .comp-list li .type {
+    font-weight: 500;
+    color: var(--text);
+  }
+  .comp-list li .weight {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .scale {
+    font-family: "SF Mono", Menlo, monospace;
+    font-size: 0.8125rem;
+    color: var(--text);
+  }
+
+  .crit-tag {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    letter-spacing: 0.3px;
+  }
+  .crit-yes { background: var(--ok-bg); color: var(--ok); }
+  .crit-partial { background: var(--warn-bg); color: var(--warn); }
+  .crit-no { background: #f4f4f4; color: var(--muted); }
+
+  .crit-note {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.3rem;
+    line-height: 1.4;
+    font-style: italic;
+  }
+
+  .select-note {
+    background: #f6f8fa;
+    border-left: 3px solid var(--accent);
+    padding: 0.85rem 1rem;
+    font-size: 0.875rem;
+    color: var(--text);
+    line-height: 1.55;
+    margin: 2rem 0 1.5rem;
+    border-radius: 0 4px 4px 0;
+  }
+  .select-note strong { color: var(--text); font-weight: 500; }
+
+  /* Expandable details for slutuppgift */
+  details.slut {
+    margin-top: 0.85rem;
+    padding-top: 0.7rem;
+    border-top: 1px dashed var(--border);
+  }
+  details.slut summary {
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    list-style: none;
+    padding: 0.15rem 0;
+  }
+  details.slut summary::before {
+    content: '▸ ';
+    display: inline-block;
+    transition: transform 0.15s;
+  }
+  details.slut[open] summary::before { content: '▾ '; }
+  details.slut .slut-body {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  details.slut .slut-body h5 {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    margin: 1rem 0 0.4rem;
+  }
+  details.slut .slut-body h5:first-child { margin-top: 0; }
+  details.slut .slut-body blockquote {
+    background: #f6f8fa;
+    border-left: 3px solid var(--dark);
+    padding: 0.75rem 1rem;
+    margin: 0 0 0.6rem;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--text);
+    border-radius: 0 3px 3px 0;
+  }
+  details.slut .slut-body blockquote cite {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+  details.slut .slut-body p { margin: 0 0 0.5rem; }
+  details.slut .slut-body .context {
+    font-size: 0.8125rem;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+    font-style: italic;
+  }
+
+  footer { background: var(--dark); color: rgba(254,254,254,0.6); text-align: center; padding: 1.5rem 2.5rem; font-size: 0.875rem; font-weight: 300; }
+</style>
+</head>
+<body>
+  <div class="topbar"><a href="s1stv.html">&larr; Statsvetarprogrammet</a></div>
+  <div class="container">
+    <h1>Examinationsuppgifter och bedömningskriterier</h1>
+    <p class="subtitle">Statsvetarprogrammet (S1STV) &middot; Inventering baserad p&aring; kursguiderna</p>
+
+    <div class="intro">
+      <p>
+        Denna inventering sammanfattar hur respektive kurs p&aring; Statsvetarprogrammet examineras,
+        enligt kursguiderna f&ouml;r senaste genomf&ouml;rande. F&ouml;r varje kurs visas:
+        <strong>examinationsformer</strong>, <strong>betygsskala</strong>, samt i vilken utstr&auml;ckning
+        <strong>bedömningskriterier</strong> &auml;r explicit formulerade i guiden.
+      </p>
+      <p>
+        <strong>Alla beskrivningar under &bdquo;Fullst&auml;ndig uppgiftsbeskrivning och betygskriterier&rdquo;
+        &auml;r ordagranna citat ur respektive kursguide</strong> (markerade med citattecken och
+        k&auml;llh&auml;nvisning). Detta ger bed&ouml;margruppen m&ouml;jlighet att verifiera formuleringarna
+        mot originaldokumenten. Vid vissa kurser h&auml;nvisar kursguiden till separata instruktionsdokument
+        p&aring; Canvas &ndash; dessa ing&aring;r inte i det publicerade underlaget och b&ouml;r beg&auml;ras
+        fr&aring;n kursansvariga.
+      </p>
+      <p>
+        Bed&ouml;margruppen 2018/743 efterlyste s&auml;rskilt underlag fr&aring;n examinerande moment. Denna
+        sida utg&ouml;r ett f&ouml;rsta steg: en &ouml;versikt. <strong>Urvalet av faktiska
+        examinationsuppgifter</strong> (med exempel p&aring; studentprestationer och bed&ouml;mningar) kan sedan
+        g&ouml;ras utifr&aring;n tabellen nedan.
+      </p>
+    </div>
+
+    <h2>Sammanfattning</h2>
+
+    <div class="summary">
+      <div class="stat-card">
+        <div class="num">14</div>
+        <div class="label">Kurser i programmet (exkl. valbara/externa)</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">14</div>
+        <div class="label">Kursguider hittade f&ouml;r senaste tillf&auml;llet</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">11</div>
+        <div class="label">Kurser med explicit betygsskala U/G/VG</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">10</div>
+        <div class="label">Kurser med explicita bed&ouml;mningskriterier i guiden</div>
+      </div>
+    </div>
+
+    <h2>Inventering per termin</h2>
+
+    <div class="select-note">
+      <strong>Hur l&auml;sa tabellen:</strong> varje kurs visas med sina examinationsformer i v&auml;nstra kolumnen,
+      betygsskalan i mitten och hur tydligt bed&ouml;mningskriterierna &auml;r formulerade till h&ouml;ger. Klicka
+      p&aring; <span style="color:var(--guide);">Guide</span>-l&auml;nken f&ouml;r att g&aring; till hela kursguiden.
+    </div>
+
+    <!-- ============ TERMIN 1 ============ -->
+    <div class="term-label">Termin 1 &middot; K&auml;rnkurser</div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1113</span>
+        <span class="crow-name">Institutioner och akt&ouml;rer i demokratin</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1113_V26.pdf">Guide V26 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Individuell seminarieuppgift</span> <span class="weight">(introveckan, 1 hp)</span></li>
+            <li><span class="type">Salstenta Moment A</span> <span class="weight">(4 hp, 4 fr&aring;gor &times; 3 p)</span></li>
+            <li><span class="type">Salstenta Moment B</span> + muntlig gruppuppgift <span class="weight">(6 hp)</span></li>
+            <li><span class="type">Gruppuppgift: strategidokument</span> <span class="weight">(Moment C)</span></li>
+            <li><span class="type">Gruppuppgift: kommitt&eacute;bet&auml;nkande</span> + muntlig presentation <span class="weight">(Moment C)</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G / VG</div>
+          <div class="crit-note">G &gt;= 6 p, VG &gt;= 9 p (per salstenta)</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-yes">Ja</span>
+          <div class="crit-note">Po&auml;nggr&auml;nser angivna per moment i guiden</div>
+        </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1113.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+      </div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1124</span>
+        <span class="crow-name">Politisk teori</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1124_V26.docx">Guide V26 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Skriftlig inl&auml;mningsuppgift</span> till Litteraturseminarium 1</li>
+            <li><span class="type">Skriftlig inl&auml;mningsuppgift</span> till Litteraturseminarium 2</li>
+            <li><span class="type">Deltagande i 2 litteraturseminarier</span> (obligatoriska)</li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G / VG</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-yes">Ja</span>
+          <div class="crit-note">50% f&ouml;r G, 75% f&ouml;r VG p&aring; tentan</div>
+        </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1124.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+      </div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1125</span>
+        <span class="crow-name">Internationell politik</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1125_V25.pdf">Guide V25 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Salstentamen</span></li>
+            <li><span class="type">Obligatorisk &ouml;vning + seminarium</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G / VG</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-yes">Ja</span>
+          <div class="crit-note">Essäer + korta svar, 4 timmar</div>
+        </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1125.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+      </div>
+
+    <!-- ============ TERMIN 2 ============ -->
+    <div class="term-label">Termin 2 &middot; F&ouml;rdjupning</div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1214</span>
+        <span class="crow-name">Demokrati och demokratisering i ett j&auml;mf&ouml;rande perspektiv</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1214_V26.docx">Guide V26 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Individuell skriftlig + muntlig &ouml;vning 1</span></li>
+            <li><span class="type">Individuell skriftlig + muntlig &ouml;vning 2</span></li>
+            <li><span class="type">Muntlig grupppresentation</span></li>
+            <li><span class="type">Individuellt flervalsprov</span></li>
+            <li><span class="type">Skriftlig litteratur&ouml;versikt</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G / VG</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-yes">Ja</span>
+          <div class="crit-note">VG kr&auml;ver VG p&aring; litt.&ouml;versikt + VG p&aring; &ouml;vning 1 eller 3</div>
+        </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1214.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+      </div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1223</span>
+        <span class="crow-name">Tematisk f&ouml;rdjupning</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1223_V26.pdf">Guide V26 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Forskningsöversikt</span> (skriftlig + muntlig, grupp 3) <span class="weight">&middot; 7,5 hp</span></li>
+            <li><span class="type">Forskningsplan</span> (skriftlig + muntlig, grupp 3) <span class="weight">&middot; 7,5 hp</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G / VG</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-yes">Ja</span>
+          <div class="crit-note">VG kr&auml;ver uppvisad sj&auml;lvst&auml;ndighet</div>
+        </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1223.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+      </div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1224</span>
+        <span class="crow-name">Milj&ouml;politikens villkor</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1224_V26.pdf">Guide V26 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Seminarieuppgifter</span> (skriftliga + muntliga) <span class="weight">&middot; Block 1 &middot; 7,5 hp</span></li>
+            <li><span class="type">Forskningsplan</span> <span class="weight">&middot; Block 2 &middot; 7,5 hp</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G / VG</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-yes">Ja</span>
+          <div class="crit-note">Explicit beskrivning av krav f&ouml;r G resp VG</div>
+        </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1224.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+      </div>
+
+    <!-- ============ TERMIN 3 ============ -->
+    <div class="term-label">Termin 3 &middot; Inriktnings&aring;r (IP-sp&aring;ret)</div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1217</span>
+        <span class="crow-name">V&auml;rldspolitiken: ordning, styrning, samarbete och diplomati</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1217_V26.pdf">Guide V26 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Seminarier med inl&auml;mningar</span></li>
+            <li><span class="type">Muntliga presentationer</span></li>
+            <li><span class="type">Gruppuppgifter</span></li>
+          </ul>
+          <div class="crit-note">Detaljerade instruktioner i separat dokument &quot;Arbetsuppgifter Examinationer V26&quot; (Canvas)</div>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G / VG</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-partial">Delvis</span>
+          <div class="crit-note">H&auml;nvisar till separat Canvas-dokument</div>
+        </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1217.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+      </div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1127</span>
+        <span class="crow-name">Conflict and Conflict Management</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1127_V26.pdf">Guide V26 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Active seminar participation</span> + 2 reflection essays (750 ord)</li>
+            <li><span class="type">Research paper</span> + kort muntlig tentamen (15 min)</li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G / VG</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-yes">Ja</span>
+          <div class="crit-note">VG kr&auml;ver VG p&aring; research paper</div>
+        </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1127.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+      </div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1136</span>
+        <span class="crow-name">Foreign Policy Analysis</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1136_V25.pdf">Guide V25 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Active seminar participation</span></li>
+            <li><span class="type">Seminar presentation</span></li>
+            <li><span class="type">Course papers</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G / VG</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-yes">Ja</span>
+          <div class="crit-note">Kvalitativa krav f&ouml;r G/VG formulerade</div>
+        </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1136.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+      </div>
+
+    <!-- ============ TERMIN 4 ============ -->
+    <div class="term-label">Termin 4 &middot; Inriktnings&aring;r (IP-sp&aring;ret)</div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1227</span>
+        <span class="crow-name">Institutionell utveckling och demokratisering</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1227_V26.pdf">Guide V26 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Policy briefs / essays</span> (850 ord)</li>
+            <li><span class="type">Seminarieuppgifter</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G / VG</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-yes">Ja</span>
+          <div class="crit-note">A/S/R-system (Argument, Structure, Readings) med +/&ndash;/&middot;</div>
+        </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1227.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+      </div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1421</span>
+        <span class="crow-name">Statsvetaren i yrkeslivet</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1421_V26.docx">Guide V26 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Gruppseminarier</span> (fyra teman)</li>
+            <li><span class="type">Individuell projektplan</span> med bed&ouml;mningsmall</li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G / VG</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-yes">Ja</span>
+          <div class="crit-note">Bed&ouml;mningsmall p&aring; Canvas (&quot;bed&ouml;mningsmall slutarbeten.docx&quot;)</div>
+        </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1421.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+      </div>
+
+    <!-- ============ TERMIN 5 ============ -->
+    <div class="term-label">Termin 5 &middot; Praktik / Utbyte / Fristående</div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1411</span>
+        <span class="crow-name">Praktik f&ouml;r Statsvetarprogrammet (helfart, 30 hp)</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1411_V24.pdf">Guide V24 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Praktiktjänstgöring</span> med handledare</li>
+            <li><span class="type">Skriftlig reflektion</span> (avslutande)</li>
+            <li><span class="type">Handledarutlåtande</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-partial">Delvis</span>
+        </div>
+      </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1411.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1412</span>
+        <span class="crow-name">Praktik f&ouml;r Statsvetarprogrammet (halvfart, 15 hp)</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1412_V24.pdf">Guide V24 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li>Samma struktur som SK1411 (halva omfattningen)</li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-partial">Delvis</span>
+        </div>
+      </div>
+    
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1412.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+
+    <!-- ============ TERMIN 6 ============ -->
+    <div class="term-label">Termin 6 &middot; Metod och examensarbete</div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1313</span>
+        <span class="crow-name">Metod inklusive uppsatssamordning</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1313_V26.pdf">Guide V26 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Sex obligatoriska gruppövningar</span> (skriftligt + muntligt) <span class="weight">&middot; 7 hp</span></li>
+            <li><span class="type">Uppsats-PM</span> (individuell)</li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G / VG</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-yes">Ja</span>
+          <div class="crit-note">Aktiv deltagande vid seminarier ett uttryckligt krav</div>
+        </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1313.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+      </div>
+
+    <div class="crow">
+      <div class="crow-head">
+        <span class="crow-code">SK1523</span>
+        <span class="crow-name">Examensarbete i statsvetenskap</span>
+        <a class="crow-guide" href="underlag/2_kursguider/kursguide_SK1523_V26.pdf">Guide V26 &rarr;</a>
+      </div>
+      <div class="crow-grid">
+        <div>
+          <div class="label">Examinationsmoment</div>
+          <ul class="comp-list">
+            <li><span class="type">Uppsats</span> (individuell)</li>
+            <li><span class="type">Seminariepresentation</span> (5&ndash;6 minuter, utan manus)</li>
+            <li><span class="type">Opposition</span> p&aring; annan students uppsats (20 minuter)</li>
+            <li><span class="type">N&auml;rvaro vid 4 andra seminarier</span></li>
+          </ul>
+        </div>
+        <div>
+          <div class="label">Betygsskala</div>
+          <div class="scale">U / G / VG</div>
+        </div>
+        <div>
+          <div class="label">Bed&ouml;mningskriterier</div>
+          <span class="crit-tag crit-yes">Ja</span>
+          <div class="crit-note">Utförlig beskrivning &ouml;ver 4 sidor i guiden</div>
+        </div>
+      
+        <div style="margin-top: 0.85rem; padding-top: 0.7rem; border-top: 1px dashed var(--border);"><a href="s1stv-examination-SK1523.html" style="font-size: 0.8125rem; color: var(--accent); text-decoration: none; font-weight: 500;">Se fullst&auml;ndiga citat ur kursguiden &rarr;</a></div>
+      </div>
+      </div>
+
+    <h2>F&ouml;rslag till urval f&ouml;r bed&ouml;margruppen</h2>
+
+    <div class="select-note">
+      <strong>F&ouml;r att visa bredden i examinationen f&ouml;reslås f&ouml;ljande urval om 6 kurser:</strong>
+      <ul style="margin: 0.6rem 0 0 1.25rem; padding: 0;">
+        <li><strong>SK1113</strong> &ndash; variation (salstenta, grupp, muntligt); tydliga po&auml;nggr&auml;nser</li>
+        <li><strong>SK1214</strong> &ndash; fem olika moment; kombinerar individuellt och grupp</li>
+        <li><strong>SK1223</strong> &ndash; forskningsn&auml;ra (forsknings&ouml;versikt + forskningsplan)</li>
+        <li><strong>SK1227</strong> &ndash; unikt bed&ouml;mningssystem (A/S/R) och policy brief-format</li>
+        <li><strong>SK1313</strong> &ndash; metodkursens gruppövningar</li>
+        <li><strong>SK1523</strong> &ndash; examensarbetet (uppsats, opposition, presentation)</li>
+      </ul>
+    </div>
+
+    <p style="font-size: 0.875rem; color: var(--muted); line-height: 1.6;">
+      F&ouml;r varje utvald kurs beh&ouml;ver vi: (1) sj&auml;lva uppgifts&shy;instruktionerna
+      (som oftast ligger i separat Canvas-dokument eller p&aring; kursens sida), (2) exempel
+      p&aring; studentprestationer med bed&ouml;mning &ndash; anonymiserade och s&auml;rskilt f&ouml;rankrade
+      med kursansvarig. Dessa dokument finns <em>inte</em> i det material som hittills &auml;r
+      publicerat, utan behöver begäras fr&aring;n respektive l&auml;rare.
+    </p>
+
+  </div>
+  <footer>Statsvetenskapliga institutionen, G&ouml;teborgs universitet</footer>
+</body>
+</html>

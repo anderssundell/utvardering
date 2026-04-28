@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Antagningsstatistik – Statsvetenskap GU</title>
+<style>
+  :root {
+    --gu-blue: #003366;
+    --gu-gold: #C8A951;
+    --green: #2d7a45;
+    --orange: #c96a00;
+    --red: #b0001e;
+    --light: #f5f5f3;
+    --mid: #e8e6e0;
+    --text: #1a1a1a;
+    --muted: #555;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", Arial, sans-serif; font-size: 15px; color: var(--text); background: var(--light); }
+
+  header {
+    background: var(--gu-blue);
+    color: white;
+    padding: 28px 40px 20px;
+    border-bottom: 4px solid var(--gu-gold);
+  }
+  header h1 { font-size: 1.7rem; font-weight: 700; letter-spacing: -0.3px; }
+  header p { margin-top: 6px; opacity: 0.85; font-size: 0.95rem; }
+  header .meta { margin-top: 12px; display: flex; gap: 24px; font-size: 0.85rem; opacity: 0.75; flex-wrap: wrap; }
+  header .meta span::before { content: "▪ "; }
+
+  nav {
+    background: white;
+    border-bottom: 1px solid var(--mid);
+    padding: 0 40px;
+    display: flex;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.07);
+    flex-wrap: wrap;
+  }
+  nav a {
+    display: block;
+    padding: 14px 18px;
+    text-decoration: none;
+    color: var(--muted);
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+    white-space: nowrap;
+  }
+  nav a:hover { color: var(--gu-blue); border-bottom-color: var(--gu-gold); }
+  nav a.active { color: var(--gu-blue); border-bottom-color: var(--gu-gold); }
+  nav a.back { color: var(--gu-blue); }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 40px; }
+
+  section { margin-bottom: 48px; }
+  section h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--gu-blue);
+    border-bottom: 2px solid var(--gu-gold);
+    padding-bottom: 8px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge {
+    background: var(--gu-blue);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    letter-spacing: 0.3px;
+  }
+  .badge.kandidat { background: #2d7a45; }
+  .badge.master { background: #6b3fa0; }
+
+  .doc-card {
+    background: white;
+    border: 1px solid var(--mid);
+    border-radius: 8px;
+    padding: 20px 22px;
+    margin-bottom: 16px;
+  }
+  .doc-card h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--gu-blue);
+    margin-bottom: 6px;
+  }
+  .doc-card .subtitle {
+    font-size: 0.84rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* Stat summary cards */
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: #f7f9fc;
+    border: 1px solid var(--mid);
+    border-radius: 7px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .stat-card .num { font-size: 1.6rem; font-weight: 700; color: var(--gu-blue); line-height: 1.1; }
+  .stat-card .lbl { font-size: 0.76rem; color: var(--muted); margin-top: 3px; }
+  .stat-card.gold { border-color: var(--gu-gold); background: #fffdf5; }
+  .stat-card.gold .num { color: var(--orange); }
+
+  /* Tables */
+  .stat-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; margin-top: 8px; }
+  .stat-table th {
+    background: var(--gu-blue);
+    color: white;
+    text-align: center;
+    padding: 9px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .stat-table th.left { text-align: left; }
+  .stat-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--mid);
+    text-align: center;
+    vertical-align: middle;
+  }
+  .stat-table td.left { text-align: left; font-weight: 600; }
+  .stat-table tr:last-child td { border-bottom: none; }
+  .stat-table tr:hover td { background: #fafaf8; }
+  .stat-table tr.ht td { background: #f7f9fc; }
+  .stat-table tr.vt td { background: #f9f9f7; }
+  .stat-table .term { font-weight: 700; white-space: nowrap; }
+  .stat-table .ht .term { color: var(--gu-blue); }
+  .stat-table .vt .term { color: var(--green); }
+
+  .score-hi { color: var(--red); font-weight: 700; }
+  .score-lo { color: var(--green); }
+
+  /* Selection group legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin: 10px 0 18px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .legend span { display: flex; align-items: center; gap: 5px; }
+  .legend .dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    display: inline-block; flex-shrink: 0;
+  }
+  .dot-bi { background: #003366; }
+  .dot-bii { background: #2d7a45; }
+  .dot-hp { background: #c96a00; }
+  .dot-au { background: #6b3fa0; }
+
+  /* Trend chart (simple CSS bar chart) */
+  .trend-note {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 14px;
+    font-style: italic;
+  }
+
+  /* Source footer */
+  .source-note {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--mid);
+  }
+  .source-note a { color: var(--gu-blue); }
+
+  /* Section tabs */
+  .prog-section { margin-bottom: 40px; }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--mid); margin: 28px 0; }
+
+  @media (max-width: 700px) {
+    .container { padding: 20px 16px; }
+    header { padding: 20px 16px 16px; }
+    nav { padding: 0 8px; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Antagningsstatistik</h1>
+  <p>Statsvetenskapliga institutionen, Göteborgs universitet – S1STV, MaPS (S2PSC), IAGG (S2IAG)</p>
+  <div class="meta">
+    <span>Källa: UHR / antagning.se</span>
+    <span>Hämtat februari 2026</span>
+    <span>HT2020–HT2025</span>
+  </div>
+</header>
+
+<nav>
+  <a href="index.html" class="back">← Startsida</a>
+  <a href="#s1stv" class="active">S1STV – Kandidat</a>
+  <a href="#s2psc">MaPS – Master</a>
+  <a href="#s2iag">IAGG – Master</a>
+  <a href="#noter">Noter</a>
+</nav>
+
+<div class="container">
+
+  <!-- ========== S1STV ========== -->
+  <section id="s1stv">
+    <h2>Statsvetarprogrammet <span class="badge kandidat">S1STV · Kandidat · 180 hp</span></h2>
+
+    <!-- Summary cards HT2025 -->
+    <div class="doc-card">
+      <h3>Hösttermin 2025 – senaste antagning</h3>
+      <div class="subtitle">Anmälningskod GU-76034 · Urval 2 (slutliga) · Källa: UHR API</div>
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="num">1 669</div>
+          <div class="lbl">Sökande totalt</div>
+        </div>
+        <div class="stat-card">
+          <div class="num">328</div>
+          <div class="lbl">Förstahandssökande</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="num">68</div>
+          <div class="lbl">Antagna (urval 2)</div>
+        </div>
+        <div class="stat-card">
+          <div class="num">38K / 30M</div>
+          <div class="lbl">Kön (ant.)</div>
+        </div>
+        <div class="stat-card">
+          <div class="num">451</div>
+          <div class="lbl">Reserver</div>
+        </div>
+      </div>
+
+      <!-- HT table -->
+      <div class="legend">
+        <span><span class="dot dot-bi"></span> BI – Gymnasiebetyg utan komplettering</span>
+        <span><span class="dot dot-bii"></span> BII – Gymnasiebetyg med komplettering</span>
+        <span><span class="dot dot-hp"></span> HP – Högskoleprov</span>
+      </div>
+
+      <table class="stat-table">
+        <thead>
+          <tr>
+            <th class="left">Termin</th>
+            <th>Sökande</th>
+            <th>1:a-hand</th>
+            <th>Antagna<br><small>(urval 2)</small></th>
+            <th>Reserver<br><small>(urval 2)</small></th>
+            <th>Poäng BI<br><small>(lägsta ant.)</small></th>
+            <th>Poäng BII<br><small>(lägsta ant.)</small></th>
+            <th>HP-poäng<br><small>(lägsta ant.)</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ht">
+            <td class="left term">HT2025</td>
+            <td>1 669</td>
+            <td>328</td>
+            <td><strong>68</strong></td>
+            <td>451</td>
+            <td class="score-hi">20.42</td>
+            <td>19.65</td>
+            <td>1.25</td>
+          </tr>
+          <tr class="vt">
+            <td class="left term">VT2025</td>
+            <td>–</td>
+            <td>–</td>
+            <td>–</td>
+            <td>–</td>
+            <td>19.66</td>
+            <td>20.00</td>
+            <td>1.10</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2024</td>
+            <td>1 663</td>
+            <td>319</td>
+            <td><strong>60</strong></td>
+            <td>–</td>
+            <td class="score-hi">20.31</td>
+            <td>20.60</td>
+            <td>1.25</td>
+          </tr>
+          <tr class="vt">
+            <td class="left term">VT2024</td>
+            <td>1 156</td>
+            <td>356</td>
+            <td><strong>65</strong></td>
+            <td>–</td>
+            <td>19.38</td>
+            <td>18.49</td>
+            <td>1.10</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2023</td>
+            <td>1 559</td>
+            <td>296</td>
+            <td><strong>70</strong></td>
+            <td>–</td>
+            <td>20.18</td>
+            <td>19.71</td>
+            <td>1.15</td>
+          </tr>
+          <tr class="vt">
+            <td class="left term">VT2023</td>
+            <td>1 023</td>
+            <td>341</td>
+            <td><strong>60</strong></td>
+            <td>–</td>
+            <td>19.06</td>
+            <td>18.02</td>
+            <td>1.10</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2022</td>
+            <td>1 563</td>
+            <td>296</td>
+            <td><strong>70</strong></td>
+            <td>–</td>
+            <td>20.31</td>
+            <td>19.35</td>
+            <td>1.15</td>
+          </tr>
+          <tr class="vt">
+            <td class="left term">VT2022</td>
+            <td>1 048</td>
+            <td>308</td>
+            <td><strong>70</strong></td>
+            <td>–</td>
+            <td>18.71</td>
+            <td>19.09</td>
+            <td>1.10</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2021</td>
+            <td>1 567</td>
+            <td>288</td>
+            <td><strong>63</strong></td>
+            <td>–</td>
+            <td>19.85</td>
+            <td>18.95</td>
+            <td>1.20</td>
+          </tr>
+          <tr class="vt">
+            <td class="left term">VT2021</td>
+            <td>1 069</td>
+            <td>295</td>
+            <td><strong>60</strong></td>
+            <td>–</td>
+            <td>18.77</td>
+            <td>18.33</td>
+            <td>1.10</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2020</td>
+            <td>1 509</td>
+            <td>284</td>
+            <td><strong>105</strong></td>
+            <td>–</td>
+            <td>19.30</td>
+            <td>18.70</td>
+            <td>1.00</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="trend-note">Antagningspoäng avser urval 2 (slutlig antagning). BI = gymnasiebetyg utan kompletting, BII = med komplettering, HP = högskoleprov. Antagna HT2020 avser urval 1 (fler platser detta år). VT2025-sökande saknas i källdata.</p>
+      <p class="source-note">Källa: <a href="https://www.uhr.se/studier-och-antagning/antagningsstatistik/" target="_blank">UHR Antagningsstatistik</a> (API) &amp; <a href="https://www.antagningsportalen.se/goteborgs-universitet/statsvetarprogrammet" target="_blank">Antagningsportalen.se</a></p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ========== S2PSC (MaPS) ========== -->
+  <section id="s2psc">
+    <h2>Master's Programme in Political Science (MaPS) <span class="badge master">S2PSC · Master · 120 hp</span></h2>
+
+    <div class="doc-card">
+      <h3>Hösttermin 2025 – senaste antagning</h3>
+      <div class="subtitle">Anmälningskod GU-76014 · Internationellt masterprogram · Urval 1 · Källa: UHR API</div>
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="num">212</div>
+          <div class="lbl">Sökande totalt</div>
+        </div>
+        <div class="stat-card">
+          <div class="num">60</div>
+          <div class="lbl">Förstahandssökande</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="num">15</div>
+          <div class="lbl">Antagna (urval 1)</div>
+        </div>
+        <div class="stat-card">
+          <div class="num">9K / 6M</div>
+          <div class="lbl">Kön (ant.)</div>
+        </div>
+        <div class="stat-card">
+          <div class="num">29</div>
+          <div class="lbl">Reserver</div>
+        </div>
+      </div>
+
+      <div class="legend">
+        <span><span class="dot dot-au"></span> AU – Akademiska meriter (skala 1–8)</span>
+        <span>DA – Direktantagning (stipendier/avtal)</span>
+      </div>
+
+      <table class="stat-table">
+        <thead>
+          <tr>
+            <th class="left">Termin</th>
+            <th>Sökande</th>
+            <th>1:a-hand</th>
+            <th>Antagna<br><small>(urval 1)</small></th>
+            <th>Reserver</th>
+            <th>AU-poäng<br><small>(lägsta ant.)</small></th>
+            <th>Kvinnor<br><small>(ant.)</small></th>
+            <th>Män<br><small>(ant.)</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ht">
+            <td class="left term">HT2025</td>
+            <td>212</td>
+            <td>60</td>
+            <td><strong>15</strong></td>
+            <td>29</td>
+            <td>6</td>
+            <td>9</td>
+            <td>6</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2024</td>
+            <td>322</td>
+            <td>88</td>
+            <td><strong>14</strong></td>
+            <td>–</td>
+            <td title="Alla behöriga sökande antagna">alla beh.¹</td>
+            <td>–</td>
+            <td>–</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2023</td>
+            <td>305</td>
+            <td>82</td>
+            <td><strong>14</strong></td>
+            <td>–</td>
+            <td title="Alla behöriga sökande antagna">alla beh.¹</td>
+            <td>–</td>
+            <td>–</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2022</td>
+            <td>322</td>
+            <td>69</td>
+            <td><strong>20</strong></td>
+            <td>–</td>
+            <td title="Alla behöriga sökande antagna">alla beh.¹</td>
+            <td>–</td>
+            <td>–</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2021</td>
+            <td>307</td>
+            <td>73</td>
+            <td><strong>19</strong></td>
+            <td>–</td>
+            <td title="Alla behöriga sökande antagna">alla beh.¹</td>
+            <td>–</td>
+            <td>–</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2020</td>
+            <td>248</td>
+            <td>68</td>
+            <td><strong>40</strong></td>
+            <td>–</td>
+            <td>69</td>
+            <td>–</td>
+            <td>–</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="trend-note">¹ "Alla behöriga" = alla behöriga sökande antagna (= inte fullt konkurrensurval det året). Antagning sker enbart HT. Antalet antagna har minskat markant sedan HT2020 (40 → 14–20/år), troligen p.g.a. striktare behörighetskrav eller ändrad dimensionering.</p>
+      <p class="source-note">Källa: <a href="https://www.uhr.se/studier-och-antagning/antagningsstatistik/" target="_blank">UHR Antagningsstatistik</a> (API). Programmet antas via <a href="https://www.universityadmissions.se" target="_blank">universityadmissions.se</a>.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ========== S2IAG (IAGG) ========== -->
+  <section id="s2iag">
+    <h2>Master in International Administration and Global Governance (IAGG) <span class="badge master">S2IAG · Master · 120 hp</span></h2>
+
+    <div class="doc-card">
+      <h3>Hösttermin 2025 – senaste antagning</h3>
+      <div class="subtitle">Anmälningskod GU-76019 · Internationellt masterprogram · Urval 1 · Källa: UHR API</div>
+      <div class="stat-row">
+        <div class="stat-card">
+          <div class="num">397</div>
+          <div class="lbl">Sökande totalt</div>
+        </div>
+        <div class="stat-card">
+          <div class="num">159</div>
+          <div class="lbl">Förstahandssökande</div>
+        </div>
+        <div class="stat-card gold">
+          <div class="num">30</div>
+          <div class="lbl">Antagna (urval 1)</div>
+        </div>
+        <div class="stat-card">
+          <div class="num">24K / 6M</div>
+          <div class="lbl">Kön (ant.)</div>
+        </div>
+        <div class="stat-card">
+          <div class="num">106</div>
+          <div class="lbl">Reserver</div>
+        </div>
+      </div>
+
+      <div class="legend">
+        <span><span class="dot dot-au"></span> AU – Akademiska meriter (poängskala 0–1000)</span>
+        <span>DA – Direktantagning (stipendier/avtal)</span>
+      </div>
+
+      <table class="stat-table">
+        <thead>
+          <tr>
+            <th class="left">Termin</th>
+            <th>Sökande</th>
+            <th>1:a-hand</th>
+            <th>Antagna<br><small>(urval 1)</small></th>
+            <th>Reserver</th>
+            <th>AU-poäng<br><small>(lägsta ant.)</small></th>
+            <th>Kvinnor<br><small>(ant.)</small></th>
+            <th>Män<br><small>(ant.)</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ht">
+            <td class="left term">HT2025</td>
+            <td>397</td>
+            <td>159</td>
+            <td><strong>30</strong></td>
+            <td>106</td>
+            <td class="score-hi">440</td>
+            <td>24</td>
+            <td>6</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2024</td>
+            <td>297</td>
+            <td>91</td>
+            <td><strong>15</strong></td>
+            <td>–</td>
+            <td title="Alla behöriga sökande antagna">alla beh.¹</td>
+            <td>–</td>
+            <td>–</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2023</td>
+            <td>283</td>
+            <td>91</td>
+            <td><strong>21</strong></td>
+            <td>–</td>
+            <td title="Alla behöriga sökande antagna">alla beh.¹</td>
+            <td>–</td>
+            <td>–</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2022</td>
+            <td>299</td>
+            <td>98</td>
+            <td><strong>20</strong></td>
+            <td>–</td>
+            <td>899</td>
+            <td>–</td>
+            <td>–</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2021</td>
+            <td>336</td>
+            <td>112</td>
+            <td><strong>31</strong></td>
+            <td>–</td>
+            <td>899</td>
+            <td>–</td>
+            <td>–</td>
+          </tr>
+          <tr class="ht">
+            <td class="left term">HT2020</td>
+            <td>261</td>
+            <td>74</td>
+            <td><strong>28</strong></td>
+            <td>–</td>
+            <td>699</td>
+            <td>–</td>
+            <td>–</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="trend-note">¹ "Alla behöriga" = alla behöriga sökande antagna. Antagning sker primärt HT. IAGG är populärast av de tre programmen relativt till antalet platser: HT2025 var 13 sökande per antagen. Stark ökning i sökande HT2025 (397 vs 283–336 tidigare år).</p>
+      <p class="source-note">Källa: <a href="https://www.uhr.se/studier-och-antagning/antagningsstatistik/" target="_blank">UHR Antagningsstatistik</a> (API). Programmet antas via <a href="https://www.universityadmissions.se" target="_blank">universityadmissions.se</a>.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ========== Jämförelse ========== -->
+  <section id="jamforelse">
+    <h2>Jämförelse – samtliga program HT2025</h2>
+    <div class="doc-card">
+      <table class="stat-table">
+        <thead>
+          <tr>
+            <th class="left">Program</th>
+            <th>Sökande totalt</th>
+            <th>1:a-hand-sökande</th>
+            <th>Antagna</th>
+            <th>Söktryck<br><small>(sök/antagen)</small></th>
+            <th>Könsfördelning<br><small>(ant.)</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="left"><strong>S1STV</strong> Statsvetarprogrammet</td>
+            <td>1 669</td>
+            <td>328</td>
+            <td>68</td>
+            <td><strong>24.5 : 1</strong></td>
+            <td>56% K / 44% M</td>
+          </tr>
+          <tr>
+            <td class="left"><strong>S2PSC</strong> MaPS</td>
+            <td>212</td>
+            <td>60</td>
+            <td>15</td>
+            <td><strong>14.1 : 1</strong></td>
+            <td>60% K / 40% M</td>
+          </tr>
+          <tr>
+            <td class="left"><strong>S2IAG</strong> IAGG</td>
+            <td>397</td>
+            <td>159</td>
+            <td>30</td>
+            <td><strong>13.2 : 1</strong></td>
+            <td>80% K / 20% M</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="trend-note">Söktryck = totalt antal sökande / antal antagna. Alla tre program är högt konkurrensatta. IAGG har starkast könsfördelning mot kvinnor (80/20).</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ========== Noter ========== -->
+  <section id="noter">
+    <h2>Noter och definitioner</h2>
+    <div class="doc-card">
+      <table class="stat-table">
+        <thead>
+          <tr>
+            <th class="left">Begrepp</th>
+            <th class="left">Förklaring</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="left"><strong>BI</strong></td>
+            <td class="left">Gymnasiebetyg utan komplettering (betyg direkt från gymnasiet, max 22.5)</td>
+          </tr>
+          <tr>
+            <td class="left"><strong>BII</strong></td>
+            <td class="left">Gymnasiebetyg med komplettering (tillagda poäng via t.ex. naturvetenskapliga ämnen)</td>
+          </tr>
+          <tr>
+            <td class="left"><strong>HP</strong></td>
+            <td class="left">Högskoleprov, skala 0.0–2.0</td>
+          </tr>
+          <tr>
+            <td class="left"><strong>AU</strong></td>
+            <td class="left">Akademiska meriter – används för masterprogram. Betyg på kandidatexamen och relevant erfarenhet bedöms av institutionen.</td>
+          </tr>
+          <tr>
+            <td class="left"><strong>DA</strong></td>
+            <td class="left">Direktantagning – reserverade platser för stipendiater eller avtalsstudenter</td>
+          </tr>
+          <tr>
+            <td class="left"><strong>Alla behöriga</strong></td>
+            <td class="left">Innebär att alla behöriga sökande erbjöds plats (inte fullt konkurrensurval). Markeras "999" i UHR-API:et, "*" i UI.</td>
+          </tr>
+          <tr>
+            <td class="left"><strong>Urval 1 / Urval 2</strong></td>
+            <td class="left">Urval 1 = preliminärt, Urval 2 = slutligt urval (efter tacksägelse). Antagningspoäng avser urval 2 för S1STV, urval 1 för masterprogrammen.</td>
+          </tr>
+          <tr>
+            <td class="left"><strong>Sökande totalt</strong></td>
+            <td class="left">Alla sökande oavsett preferensordning, vid sista anmälningsdag</td>
+          </tr>
+          <tr>
+            <td class="left"><strong>Förstahandssökande</strong></td>
+            <td class="left">Sökande som angett programmet som förstahandsval</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="source-note" style="margin-top:14px;">
+        All statistik hämtad från <a href="https://www.uhr.se/studier-och-antagning/antagningsstatistik/" target="_blank">UHR Antagningsstatistik</a> via internt API (februari 2026).
+        Antagningspoäng för S1STV kompletterade med data från <a href="https://www.antagningsportalen.se/goteborgs-universitet/statsvetarprogrammet" target="_blank">Antagningsportalen.se</a>.
+        Masterprogram (S2PSC, S2IAG) antas via <a href="https://www.universityadmissions.se" target="_blank">universityadmissions.se</a>.
+      </p>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
