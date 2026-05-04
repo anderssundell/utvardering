@@ -403,7 +403,7 @@
             <td class="nomatch"></td>
             <td class="nomatch"></td>
             <td class="nomatch"></td>
-            <td class="nomatch"></td>
+            <td class="match"></td>
             <td class="match"></td>
           </tr>
 
@@ -922,7 +922,8 @@ const EV = {
         FF5: ['Självständigt arbeta fram text i enlighet med god akademisk standard'],
         FF6: ['Utifrån ett givet vetenskapligt problem välja lämplig utformning (forskningsdesign) och metod för en vetenskaplig undersökning'],
         VF1: ['Reflektera över etiska aspekter av olika metodval och tillvägagångssätt'],
-        VF2: ['Värdera hur en vetenskaplig studies utformning (design) och metod möjliggör/begränsar de slutsatser som är möjliga att dra']
+        VF2: ['Värdera hur en vetenskaplig studies utformning (design) och metod möjliggör/begränsar de slutsatser som är möjliga att dra'],
+        'G-VF3': ['Med stöd i teori och tidigare forskning samt med en korrekt vetenskaplig terminologi formulera samhällsrelevanta och för forskningen intressanta statsvetenskapliga problem', 'Utifrån ett givet vetenskapligt problem välja lämplig utformning (forskningsdesign) och metod för en vetenskaplig undersökning']
       },
       'SK1523': {
         FF1: ['uttrycka sig muntligt och skriftligt på god och begriplig svenska'],
@@ -938,21 +939,21 @@ const EV = {
 
     // PDF-länkar per kurs
     const PDF = {
-      'SK1113': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1113.pdf',
+      'SK1113': 'https://www.gu.se/studera/hitta-utbildning/institutioner-och-aktorer-i-demokratin-sk1113/kursplan/e6a4686c-2963-11ef-a2a0-4c1db4504bb5',
       'SK1124': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1124.pdf',
-      'SK1125': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1125.pdf',
+      'SK1125': 'https://www.gu.se/studera/hitta-utbildning/internationell-politik-sk1125/kursplan/467b1f3b-25a9-11f0-b7f2-01c59f564d9f',
       'SK1214': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1214.pdf',
       'SK1223': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1223.pdf',
       'SK1224': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1224.pdf',
       'SK1217': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1217.pdf',
-      'SK1127': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1127.pdf',
-      'SK1136': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1136.pdf',
+      'SK1127': 'https://www.gu.se/syllabus/1999ed99-cf8a-11f0-9d49-fd72c5714a36',
+      'SK1136': 'https://www.gu.se/syllabus/753d06d4-cf8c-11f0-9d49-fd72c5714a36',
       'SK1227': 'https://www.gu.se/studera/hitta-utbildning/institutionell-utveckling-och-demokratisering-i-ett-internationellt-perspektiv-sk1227/kursplan/e78f1740-4132-11f0-99ef-94017f09419d',
-      'SK1421': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1421.pdf',
-      'SK1411': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1411.pdf',
-      'SK1412': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1412.pdf',
-      'SK1313': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1313.pdf',
-      'SK1523': 'underlag/1_kursplaner/kursplaner_individuella/kursplan_SK1523.pdf'
+      'SK1421': 'https://www.gu.se/studera/hitta-utbildning/statsvetaren-i-yrkeslivet-sk1421/kursplan/91769f58-349f-11f0-bbe5-6c9caba64748',
+      'SK1411': 'https://www.gu.se/syllabus/4984707c-b576-11f0-aa27-85c3b3d64a85',
+      'SK1412': 'https://www.gu.se/syllabus/8b88061d-b594-11f0-aa27-85c3b3d64a85',
+      'SK1313': 'https://www.gu.se/studera/hitta-utbildning/metod-inklusive-uppsatssamordning-i-statsvetenskap-sk1313/kursplan/4ec0450a-34ba-11f0-bbe5-6c9caba64748',
+      'SK1523': 'https://www.gu.se/studera/hitta-utbildning/examensarbete-i-statsvetenskap-sk1523/kursplan/ca4d0dba-b172-11ef-824e-368a86ab4da1'
     };
 
     // Bygg mapping colIdx -> kurskod
@@ -998,8 +999,10 @@ const EV = {
       elQuotes.innerHTML = '';
       if (goal.indexOf('G-') === 0) {
         elGoalText.textContent = ' ' + (GENERAL_GOALS[goal] || '');
-        const localGoals = GENERAL_TO_LOCAL[goal] || [];
         let any = false;
+        const directQs = (EV[course] && EV[course][goal]) || [];
+        directQs.forEach(q => { appendQuoteWithTag(goal, q); any = true; });
+        const localGoals = GENERAL_TO_LOCAL[goal] || [];
         localGoals.forEach(lg => {
           const qs = (EV[course] && EV[course][lg]) || [];
           qs.forEach(q => { appendQuoteWithTag(lg, q); any = true; });

@@ -285,21 +285,22 @@
       <summary style="cursor:pointer; font-size:0.875rem; color:var(--link); font-weight:400; margin-bottom:0.5rem;">Visa fullst&auml;ndig tabell</summary>
       <table>
         <thead>
-          <tr><th>Termin</th><th>Beh. 1:a-handss&ouml;kande</th><th>Antagna</th><th>S&ouml;kande / antagen</th></tr>
+          <tr><th>Termin</th><th>Beh. s&ouml;kande</th><th>Beh. 1:a-handss&ouml;kande</th><th>Antagna</th><th>Beh. / antagen</th><th>1:a-h. / antagen</th></tr>
         </thead>
         <tbody>
-          <tr><td>HT 2020</td><td class="num">262</td><td class="num">97</td><td class="num">2.7</td></tr>
-          <tr><td>VT 2021</td><td class="num">278</td><td class="num">62</td><td class="num">4.5</td></tr>
-          <tr><td>HT 2021</td><td class="num">272</td><td class="num">67</td><td class="num">4.1</td></tr>
-          <tr><td>VT 2022</td><td class="num">293</td><td class="num">69</td><td class="num">4.2</td></tr>
-          <tr><td>HT 2022</td><td class="num">287</td><td class="num">68</td><td class="num">4.2</td></tr>
-          <tr><td>VT 2023</td><td class="num">327</td><td class="num">53</td><td class="num">6.2</td></tr>
-          <tr><td>HT 2023</td><td class="num">271</td><td class="num">63</td><td class="num">4.3</td></tr>
-          <tr><td>VT 2024</td><td class="num">339</td><td class="num">61</td><td class="num">5.6</td></tr>
-          <tr><td>HT 2024</td><td class="num">297</td><td class="num">58</td><td class="num">5.1</td></tr>
-          <tr><td>VT 2025</td><td class="num">339</td><td class="num">63</td><td class="num">5.4</td></tr>
-          <tr><td>HT 2025</td><td class="num">315</td><td class="num">66</td><td class="num">4.8</td></tr>
-          <tr><td>VT 2026</td><td class="num">378</td><td class="num">58</td><td class="num">6.5</td></tr>
+          <tr><td>HT 2020</td><td class="num">1402</td><td class="num">262</td><td class="num">97</td><td class="num">14.5</td><td class="num">2.7</td></tr>
+          <tr><td>VT 2021</td><td class="num">988</td><td class="num">278</td><td class="num">62</td><td class="num">15.9</td><td class="num">4.5</td></tr>
+          <tr><td>HT 2021</td><td class="num">1466</td><td class="num">272</td><td class="num">67</td><td class="num">21.9</td><td class="num">4.1</td></tr>
+          <tr><td>VT 2022</td><td class="num">974</td><td class="num">293</td><td class="num">69</td><td class="num">14.1</td><td class="num">4.2</td></tr>
+          <tr><td>HT 2022</td><td class="num">1467</td><td class="num">287</td><td class="num">68</td><td class="num">21.6</td><td class="num">4.2</td></tr>
+          <tr><td>VT 2023</td><td class="num">960</td><td class="num">327</td><td class="num">53</td><td class="num">18.1</td><td class="num">6.2</td></tr>
+          <tr><td>HT 2023</td><td class="num">1463</td><td class="num">271</td><td class="num">63</td><td class="num">23.2</td><td class="num">4.3</td></tr>
+          <tr><td>VT 2024</td><td class="num">1072</td><td class="num">339</td><td class="num">61</td><td class="num">17.6</td><td class="num">5.6</td></tr>
+          <tr><td>HT 2024</td><td class="num">1565</td><td class="num">297</td><td class="num">58</td><td class="num">27.0</td><td class="num">5.1</td></tr>
+          <tr><td>VT 2025</td><td class="num">1133</td><td class="num">339</td><td class="num">63</td><td class="num">18.0</td><td class="num">5.4</td></tr>
+          <tr><td>HT 2025</td><td class="num">1595</td><td class="num">315</td><td class="num">66</td><td class="num">24.2</td><td class="num">4.8</td></tr>
+          <tr><td>VT 2026</td><td class="num">1213</td><td class="num">378</td><td class="num">58</td><td class="num">20.9</td><td class="num">6.5</td></tr>
+          <tr><td>HT 2026</td><td class="num">1507</td><td class="num">289</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
         </tbody>
       </table>
       <p class="table-note">K&auml;lla: GU Datalager.</p>
@@ -307,11 +308,12 @@
 
     <script>
     (function() {
-      var labels =     ['HT20','VT21','HT21','VT22','HT22','VT23','HT23','VT24','HT24','VT25','HT25','VT26'];
-      var labelsLong = ['HT 2020','VT 2021','HT 2021','VT 2022','HT 2022','VT 2023','HT 2023','VT 2024','HT 2024','VT 2025','HT 2025','VT 2026'];
-      var forsta = [262, 278, 272, 293, 287, 327, 271, 339, 297, 339, 315, 378];
-      var antagna = [97,  62,  67,  69,  68,  53,  63,  61,  58,  63,  66,  58];
-      var colSok = '#24273a', colReg = '#e2005e';
+      var labels =     ['HT20', 'VT21', 'HT21', 'VT22', 'HT22', 'VT23', 'HT23', 'VT24', 'HT24', 'VT25', 'HT25', 'VT26', 'HT26'];
+      var labelsLong = ['HT 2020', 'VT 2021', 'HT 2021', 'VT 2022', 'HT 2022', 'VT 2023', 'HT 2023', 'VT 2024', 'HT 2024', 'VT 2025', 'HT 2025', 'VT 2026', 'HT 2026'];
+      var alla =    [1402, 988, 1466, 974, 1467, 960, 1463, 1072, 1565, 1133, 1595, 1213, 1507];
+      var forsta =  [262, 278, 272, 293, 287, 327, 271, 339, 297, 339, 315, 378, 289];
+      var antagna = [97, 62, 67, 69, 68, 53, 63, 61, 58, 63, 66, 58, null];
+      var colAlla = '#9aa0b8', colSok = '#24273a', colReg = '#e2005e';
 
       var canvas = document.getElementById('sokChart');
       var ctx = canvas.getContext('2d');
@@ -319,7 +321,7 @@
       var pad = { l: 56, r: 32, t: 35, b: 60 };
       var gW = W - pad.l - pad.r, gH = H - pad.t - pad.b;
       var n = labels.length;
-      var maxY = 420;
+      var maxY = 1700;
       var activeI = -1;
       var ratioPx = 1;
 
@@ -345,7 +347,7 @@
         ctx.font = '14px ' + font;
         ctx.textBaseline = 'middle';
         for (var g = 0; g <= 4; g++) {
-          var val = g * 100;
+          var val = g * 400;
           var yy = ty(val);
           ctx.strokeStyle = '#f0f0f0'; ctx.lineWidth = 1;
           ctx.beginPath(); ctx.moveTo(pad.l, yy); ctx.lineTo(W - pad.r, yy); ctx.stroke();
@@ -363,7 +365,17 @@
           ctx.fillText(l, tx(i), H - pad.b + 12);
         });
 
-        // Sökande line
+        // Alla behöriga line
+        ctx.strokeStyle = colAlla; ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        alla.forEach(function(v, i) { if (i === 0) ctx.moveTo(tx(i), ty(v)); else ctx.lineTo(tx(i), ty(v)); });
+        ctx.stroke();
+        alla.forEach(function(v, i) {
+          ctx.beginPath(); ctx.arc(tx(i), ty(v), (i === activeI) ? 6.5 : 3.5, 0, Math.PI * 2);
+          ctx.fillStyle = colAlla; ctx.fill();
+        });
+
+        // 1:a-hand sökande line
         ctx.strokeStyle = colSok; ctx.lineWidth = 2.8;
         ctx.beginPath();
         forsta.forEach(function(v, i) { if (i === 0) ctx.moveTo(tx(i), ty(v)); else ctx.lineTo(tx(i), ty(v)); });
@@ -373,12 +385,18 @@
           ctx.fillStyle = colSok; ctx.fill();
         });
 
-        // Antagna line
+        // Antagna line (skip null/0)
         ctx.strokeStyle = colReg; ctx.lineWidth = 2.8;
         ctx.beginPath();
-        antagna.forEach(function(v, i) { if (i === 0) ctx.moveTo(tx(i), ty(v)); else ctx.lineTo(tx(i), ty(v)); });
+        var started = false;
+        antagna.forEach(function(v, i) {
+          if (v === null || v === 0) { started = false; return; }
+          if (!started) { ctx.moveTo(tx(i), ty(v)); started = true; }
+          else ctx.lineTo(tx(i), ty(v));
+        });
         ctx.stroke();
         antagna.forEach(function(v, i) {
+          if (v === null || v === 0) return;
           ctx.beginPath(); ctx.arc(tx(i), ty(v), (i === activeI) ? 6.5 : 3.5, 0, Math.PI * 2);
           ctx.fillStyle = colReg; ctx.fill();
         });
@@ -390,33 +408,51 @@
           ctx.beginPath(); ctx.moveTo(xi, pad.t); ctx.lineTo(xi, H - pad.b); ctx.stroke();
           ctx.setLineDash([]);
 
+          var ant = antagna[activeI];
+          var hasAnt = ant !== null && ant > 0;
+          var ratioAlla = hasAnt ? (alla[activeI] / ant).toFixed(1) : null;
+          var ratioForsta = hasAnt ? (forsta[activeI] / ant).toFixed(1) : null;
+
+          var yA = ty(alla[activeI]);
+          ctx.font = '700 15px ' + font; ctx.fillStyle = colAlla;
+          ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+          ctx.fillText(alla[activeI], xi, yA - (hasAnt ? 22 : 8));
+          if (hasAnt) {
+            ctx.font = '500 12px ' + font; ctx.fillStyle = '#737272';
+            ctx.fillText(ratioAlla + ' per antagen', xi, yA - 8);
+          }
+
           var ys = ty(forsta[activeI]);
           ctx.font = '700 15px ' + font; ctx.fillStyle = colSok;
-          ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-          ctx.fillText(forsta[activeI], xi, ys - 14);
+          ctx.fillText(forsta[activeI], xi, ys - (hasAnt ? 22 : 8));
+          if (hasAnt) {
+            ctx.font = '500 12px ' + font; ctx.fillStyle = '#737272';
+            ctx.fillText(ratioForsta + ' per antagen', xi, ys - 8);
+          }
 
-          var yr = ty(antagna[activeI]);
-          ctx.fillStyle = colReg; ctx.textBaseline = 'top';
-          ctx.fillText(antagna[activeI], xi, yr + 12);
-
-          var yMid = (ys + yr) / 2;
-          var ratioLbl = (forsta[activeI] / antagna[activeI]).toFixed(1);
-          ctx.font = '500 13px ' + font; ctx.fillStyle = '#737272';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(ratioLbl + ' s\u00f6k/ant.', xi, yMid);
+          if (hasAnt) {
+            var yr = ty(ant);
+            ctx.font = '700 15px ' + font; ctx.fillStyle = colReg;
+            ctx.textBaseline = 'top';
+            ctx.fillText(ant, xi, yr + 12);
+          }
         }
 
         // Legend
         var ly = H - 14;
-        ctx.font = '500 14px ' + font; ctx.textBaseline = 'middle';
-        ctx.strokeStyle = colSok; ctx.lineWidth = 2.8;
-        ctx.beginPath(); ctx.moveTo(pad.l, ly); ctx.lineTo(pad.l + 30, ly); ctx.stroke();
+        ctx.font = '500 13px ' + font; ctx.textBaseline = 'middle';
+        ctx.strokeStyle = colAlla; ctx.lineWidth = 2.4;
+        ctx.beginPath(); ctx.moveTo(pad.l, ly); ctx.lineTo(pad.l + 24, ly); ctx.stroke();
         ctx.fillStyle = '#24273a'; ctx.textAlign = 'left';
-        ctx.fillText('Beh\u00f6riga f\u00f6rstahandss\u00f6kande', pad.l + 38, ly);
+        ctx.fillText('Beh\u00f6riga s\u00f6kande', pad.l + 30, ly);
+        ctx.strokeStyle = colSok; ctx.lineWidth = 2.8;
+        var lx2 = pad.l + 170;
+        ctx.beginPath(); ctx.moveTo(lx2, ly); ctx.lineTo(lx2 + 24, ly); ctx.stroke();
+        ctx.fillText('Beh\u00f6riga f\u00f6rstahandss\u00f6kande', lx2 + 30, ly);
         ctx.strokeStyle = colReg; ctx.lineWidth = 2.8;
-        var lx2 = pad.l + 290;
-        ctx.beginPath(); ctx.moveTo(lx2, ly); ctx.lineTo(lx2 + 30, ly); ctx.stroke();
-        ctx.fillText('Antagna', lx2 + 38, ly);
+        var lx3 = pad.l + 380;
+        ctx.beginPath(); ctx.moveTo(lx3, ly); ctx.lineTo(lx3 + 24, ly); ctx.stroke();
+        ctx.fillText('Antagna', lx3 + 30, ly);
       }
 
       function getPos(e) {
@@ -448,7 +484,7 @@
 
     <!-- MERITVÄRDEN -->
     <div class="section-label">L&auml;gsta antagningsv&auml;rden (HT 2020&ndash;HT 2024)</div>
-    <p class="note-box">Visar l&auml;gsta meritp&ouml;ang bland antagna per termin. K&auml;lla: GU Datalager.</p>
+    <p class="note-box">Visar l&auml;gsta meritpo&auml;ng bland antagna per termin. K&auml;lla: GU Datalager.</p>
 
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; max-width:760px; margin:0 auto 1.5rem;">
       <div>
@@ -479,12 +515,15 @@
         function setupHiDPI() {
           var dpr = window.devicePixelRatio || 1;
           var rect = canvas.getBoundingClientRect();
-          var cssW = rect.width || W;
-          var ratio = (cssW * dpr) / W;
-          if (ratio < 2) ratio = 2;
-          canvas.width = Math.round(W * ratio);
-          canvas.height = Math.round(H * ratio);
-          ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+          var cssW = Math.round(rect.width || W);
+          var cssH = Math.round(cssW * (H / W));
+          var oversample = 2;
+          canvas.width = cssW * dpr * oversample;
+          canvas.height = cssH * dpr * oversample;
+          canvas.style.width = cssW + 'px';
+          canvas.style.height = cssH + 'px';
+          var scale = (cssW * dpr * oversample) / W;
+          ctx.setTransform(scale, 0, 0, scale, 0, 0);
         }
 
         function tx(i) { return pad.l + (i / (n - 1)) * gW; }

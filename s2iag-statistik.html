@@ -167,7 +167,7 @@
   };
 
   // Sökande/antagna line chart (Hi-DPI, interactive)
-  window.__renderSokChart = function(canvasId, labels, forsta, antagna, maxY) {
+  window.__renderSokChart = function(canvasId, labels, alla, forsta, antagna, maxY) {
     var canvas = document.getElementById(canvasId);
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
@@ -177,7 +177,7 @@
     var n = labels.length;
     var activeI = -1;
     var ratioPx = 1;
-    var colSok = '#24273a', colReg = '#e2005e';
+    var colAlla = '#9aa0b8', colSok = '#24273a', colReg = '#e2005e';
 
     function setupHiDPI() {
       var dpr = window.devicePixelRatio || 1;
@@ -214,6 +214,16 @@
         ctx.font = (i === activeI) ? ('700 14px ' + font) : ('500 13px ' + font);
         ctx.fillText(l, tx(i), H - pad.b + 12);
       });
+      // Alla behöriga line
+      ctx.strokeStyle = colAlla; ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      alla.forEach(function(v, i) { if (i === 0) ctx.moveTo(tx(i), ty(v)); else ctx.lineTo(tx(i), ty(v)); });
+      ctx.stroke();
+      alla.forEach(function(v, i) {
+        ctx.beginPath(); ctx.arc(tx(i), ty(v), (i === activeI) ? 6.5 : 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = colAlla; ctx.fill();
+      });
+      // 1:a-hand sökande line
       ctx.strokeStyle = colSok; ctx.lineWidth = 2.8;
       ctx.beginPath();
       forsta.forEach(function(v, i) { if (i === 0) ctx.moveTo(tx(i), ty(v)); else ctx.lineTo(tx(i), ty(v)); });
@@ -235,29 +245,38 @@
         ctx.strokeStyle = '#cfcfcf'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
         ctx.beginPath(); ctx.moveTo(xi, pad.t); ctx.lineTo(xi, H - pad.b); ctx.stroke();
         ctx.setLineDash([]);
+        var ratioAlla = (alla[activeI] / antagna[activeI]).toFixed(1);
+        var ratioForsta = (forsta[activeI] / antagna[activeI]).toFixed(1);
+        var yA = ty(alla[activeI]);
+        ctx.font = '700 15px ' + font; ctx.fillStyle = colAlla;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(alla[activeI], xi, yA - 22);
+        ctx.font = '500 12px ' + font; ctx.fillStyle = '#737272';
+        ctx.fillText(ratioAlla + ' per antagen', xi, yA - 8);
         var ys = ty(forsta[activeI]);
         ctx.font = '700 15px ' + font; ctx.fillStyle = colSok;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-        ctx.fillText(forsta[activeI], xi, ys - 14);
+        ctx.fillText(forsta[activeI], xi, ys - 22);
+        ctx.font = '500 12px ' + font; ctx.fillStyle = '#737272';
+        ctx.fillText(ratioForsta + ' per antagen', xi, ys - 8);
         var yr = ty(antagna[activeI]);
-        ctx.fillStyle = colReg; ctx.textBaseline = 'top';
+        ctx.font = '700 15px ' + font; ctx.fillStyle = colReg;
+        ctx.textBaseline = 'top';
         ctx.fillText(antagna[activeI], xi, yr + 12);
-        var yMid = (ys + yr) / 2;
-        var ratioLbl = (forsta[activeI] / antagna[activeI]).toFixed(1);
-        ctx.font = '500 13px ' + font; ctx.fillStyle = '#737272';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(ratioLbl + ' sök/ant.', xi, yMid);
       }
       var ly = H - 14;
-      ctx.font = '500 14px ' + font; ctx.textBaseline = 'middle';
-      ctx.strokeStyle = colSok; ctx.lineWidth = 2.8;
-      ctx.beginPath(); ctx.moveTo(pad.l, ly); ctx.lineTo(pad.l + 30, ly); ctx.stroke();
+      ctx.font = '500 13px ' + font; ctx.textBaseline = 'middle';
+      ctx.strokeStyle = colAlla; ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.moveTo(pad.l, ly); ctx.lineTo(pad.l + 24, ly); ctx.stroke();
       ctx.fillStyle = '#24273a'; ctx.textAlign = 'left';
-      ctx.fillText('Behöriga förstahandssökande', pad.l + 38, ly);
+      ctx.fillText('Behöriga sökande', pad.l + 30, ly);
+      ctx.strokeStyle = colSok; ctx.lineWidth = 2.8;
+      var lx2 = pad.l + 170;
+      ctx.beginPath(); ctx.moveTo(lx2, ly); ctx.lineTo(lx2 + 24, ly); ctx.stroke();
+      ctx.fillText('Behöriga förstahandssökande', lx2 + 30, ly);
       ctx.strokeStyle = colReg; ctx.lineWidth = 2.8;
-      var lx2 = pad.l + 290;
-      ctx.beginPath(); ctx.moveTo(lx2, ly); ctx.lineTo(lx2 + 30, ly); ctx.stroke();
-      ctx.fillText('Antagna', lx2 + 38, ly);
+      var lx3 = pad.l + 380;
+      ctx.beginPath(); ctx.moveTo(lx3, ly); ctx.lineTo(lx3 + 24, ly); ctx.stroke();
+      ctx.fillText('Antagna', lx3 + 30, ly);
     }
 
     function getPos(e) {
@@ -333,20 +352,20 @@
       <summary style="cursor:pointer; font-size:0.875rem; color:var(--link); font-weight:400; margin-bottom:0.5rem;">Visa fullst&auml;ndig tabell</summary>
       <table>
         <thead>
-          <tr><th>Termin</th><th>Beh. 1:a-handss&ouml;kande</th><th>Antagna</th><th>S&ouml;kande / antagen</th></tr>
+          <tr><th>Termin</th><th>Beh. s&ouml;kande</th><th>Beh. 1:a-handss&ouml;kande</th><th>Antagna</th><th>Beh. / antagen</th><th>1:a-h. / antagen</th></tr>
         </thead>
         <tbody>
-          <tr><td>HT 2015</td><td class="num">90</td><td class="num">36</td><td class="num">2,5</td></tr>
-          <tr><td>HT 2016</td><td class="num">133</td><td class="num">41</td><td class="num">3,2</td></tr>
-          <tr><td>HT 2017</td><td class="num">246</td><td class="num">44</td><td class="num">5,6</td></tr>
-          <tr><td>HT 2018</td><td class="num">230</td><td class="num">43</td><td class="num">5,3</td></tr>
-          <tr><td>HT 2019</td><td class="num">205</td><td class="num">44</td><td class="num">4,7</td></tr>
-          <tr><td>HT 2020</td><td class="num">183</td><td class="num">45</td><td class="num">4,1</td></tr>
-          <tr><td>HT 2021</td><td class="num">269</td><td class="num">44</td><td class="num">6,1</td></tr>
-          <tr><td>HT 2022</td><td class="num">231</td><td class="num">42</td><td class="num">5,5</td></tr>
-          <tr><td>HT 2023</td><td class="num">255</td><td class="num">31</td><td class="num">8,2</td></tr>
-          <tr><td>HT 2024</td><td class="num">236</td><td class="num">34</td><td class="num">6,9</td></tr>
-          <tr><td>HT 2025</td><td class="num">255</td><td class="num">36</td><td class="num">7,1</td></tr>
+          <tr><td>HT 2015</td><td class="num">462</td><td class="num">90</td><td class="num">36</td><td class="num">12,8</td><td class="num">2,5</td></tr>
+          <tr><td>HT 2016</td><td class="num">490</td><td class="num">133</td><td class="num">41</td><td class="num">12,0</td><td class="num">3,2</td></tr>
+          <tr><td>HT 2017</td><td class="num">725</td><td class="num">246</td><td class="num">44</td><td class="num">16,5</td><td class="num">5,6</td></tr>
+          <tr><td>HT 2018</td><td class="num">724</td><td class="num">230</td><td class="num">43</td><td class="num">16,8</td><td class="num">5,3</td></tr>
+          <tr><td>HT 2019</td><td class="num">651</td><td class="num">205</td><td class="num">44</td><td class="num">14,8</td><td class="num">4,7</td></tr>
+          <tr><td>HT 2020</td><td class="num">634</td><td class="num">183</td><td class="num">45</td><td class="num">14,1</td><td class="num">4,1</td></tr>
+          <tr><td>HT 2021</td><td class="num">860</td><td class="num">269</td><td class="num">44</td><td class="num">19,5</td><td class="num">6,1</td></tr>
+          <tr><td>HT 2022</td><td class="num">719</td><td class="num">231</td><td class="num">42</td><td class="num">17,1</td><td class="num">5,5</td></tr>
+          <tr><td>HT 2023</td><td class="num">812</td><td class="num">255</td><td class="num">31</td><td class="num">26,2</td><td class="num">8,2</td></tr>
+          <tr><td>HT 2024</td><td class="num">790</td><td class="num">236</td><td class="num">34</td><td class="num">23,2</td><td class="num">6,9</td></tr>
+          <tr><td>HT 2025</td><td class="num">836</td><td class="num">255</td><td class="num">36</td><td class="num">23,2</td><td class="num">7,1</td></tr>
         </tbody>
       </table>
       <p class="table-note">K&auml;lla: GU Datalager (<code>datalagret_ans&ouml;kningar.xlsx</code>).</p>
@@ -356,9 +375,10 @@
     (function() {
       window.__renderSokChart('sokChart',
         ['HT15','HT16','HT17','HT18','HT19','HT20','HT21','HT22','HT23','HT24','HT25'],
+        [462, 490, 725, 724, 651, 634, 860, 719, 812, 790, 836],
         [90, 133, 246, 230, 205, 183, 269, 231, 255, 236, 255],
         [36, 41, 44, 43, 44, 45, 44, 42, 31, 34, 36],
-        300);
+        1000);
     })();
     </script>
 

@@ -167,7 +167,7 @@
   };
 
   // Sökande/antagna line chart (Hi-DPI, interactive)
-  window.__renderSokChart = function(canvasId, labels, forsta, antagna, maxY) {
+  window.__renderSokChart = function(canvasId, labels, alla, forsta, antagna, maxY) {
     var canvas = document.getElementById(canvasId);
     if (!canvas) return;
     var ctx = canvas.getContext('2d');
@@ -177,7 +177,7 @@
     var n = labels.length;
     var activeI = -1;
     var ratioPx = 1;
-    var colSok = '#24273a', colReg = '#e2005e';
+    var colAlla = '#9aa0b8', colSok = '#24273a', colReg = '#e2005e';
 
     function setupHiDPI() {
       var dpr = window.devicePixelRatio || 1;
@@ -216,7 +216,16 @@
         ctx.font = (i === activeI) ? ('700 14px ' + font) : ('500 13px ' + font);
         ctx.fillText(l, tx(i), H - pad.b + 12);
       });
-      // Sökande line
+      // Alla behöriga line
+      ctx.strokeStyle = colAlla; ctx.lineWidth = 2.4;
+      ctx.beginPath();
+      alla.forEach(function(v, i) { if (i === 0) ctx.moveTo(tx(i), ty(v)); else ctx.lineTo(tx(i), ty(v)); });
+      ctx.stroke();
+      alla.forEach(function(v, i) {
+        ctx.beginPath(); ctx.arc(tx(i), ty(v), (i === activeI) ? 6.5 : 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = colAlla; ctx.fill();
+      });
+      // 1:a-hand sökande line
       ctx.strokeStyle = colSok; ctx.lineWidth = 2.8;
       ctx.beginPath();
       forsta.forEach(function(v, i) { if (i === 0) ctx.moveTo(tx(i), ty(v)); else ctx.lineTo(tx(i), ty(v)); });
@@ -240,30 +249,39 @@
         ctx.strokeStyle = '#cfcfcf'; ctx.lineWidth = 1; ctx.setLineDash([4, 3]);
         ctx.beginPath(); ctx.moveTo(xi, pad.t); ctx.lineTo(xi, H - pad.b); ctx.stroke();
         ctx.setLineDash([]);
+        var ratioAlla = (alla[activeI] / antagna[activeI]).toFixed(1);
+        var ratioForsta = (forsta[activeI] / antagna[activeI]).toFixed(1);
+        var yA = ty(alla[activeI]);
+        ctx.font = '700 15px ' + font; ctx.fillStyle = colAlla;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(alla[activeI], xi, yA - 22);
+        ctx.font = '500 12px ' + font; ctx.fillStyle = '#737272';
+        ctx.fillText(ratioAlla + ' per antagen', xi, yA - 8);
         var ys = ty(forsta[activeI]);
         ctx.font = '700 15px ' + font; ctx.fillStyle = colSok;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
-        ctx.fillText(forsta[activeI], xi, ys - 14);
+        ctx.fillText(forsta[activeI], xi, ys - 22);
+        ctx.font = '500 12px ' + font; ctx.fillStyle = '#737272';
+        ctx.fillText(ratioForsta + ' per antagen', xi, ys - 8);
         var yr = ty(antagna[activeI]);
-        ctx.fillStyle = colReg; ctx.textBaseline = 'top';
+        ctx.font = '700 15px ' + font; ctx.fillStyle = colReg;
+        ctx.textBaseline = 'top';
         ctx.fillText(antagna[activeI], xi, yr + 12);
-        var yMid = (ys + yr) / 2;
-        var ratioLbl = (forsta[activeI] / antagna[activeI]).toFixed(1);
-        ctx.font = '500 13px ' + font; ctx.fillStyle = '#737272';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(ratioLbl + ' sök/ant.', xi, yMid);
       }
       // Legend
       var ly = H - 14;
-      ctx.font = '500 14px ' + font; ctx.textBaseline = 'middle';
-      ctx.strokeStyle = colSok; ctx.lineWidth = 2.8;
-      ctx.beginPath(); ctx.moveTo(pad.l, ly); ctx.lineTo(pad.l + 30, ly); ctx.stroke();
+      ctx.font = '500 13px ' + font; ctx.textBaseline = 'middle';
+      ctx.strokeStyle = colAlla; ctx.lineWidth = 2.4;
+      ctx.beginPath(); ctx.moveTo(pad.l, ly); ctx.lineTo(pad.l + 24, ly); ctx.stroke();
       ctx.fillStyle = '#24273a'; ctx.textAlign = 'left';
-      ctx.fillText('Behöriga förstahandssökande', pad.l + 38, ly);
+      ctx.fillText('Behöriga sökande', pad.l + 30, ly);
+      ctx.strokeStyle = colSok; ctx.lineWidth = 2.8;
+      var lx2 = pad.l + 170;
+      ctx.beginPath(); ctx.moveTo(lx2, ly); ctx.lineTo(lx2 + 24, ly); ctx.stroke();
+      ctx.fillText('1:a-handssökande', lx2 + 30, ly);
       ctx.strokeStyle = colReg; ctx.lineWidth = 2.8;
-      var lx2 = pad.l + 290;
-      ctx.beginPath(); ctx.moveTo(lx2, ly); ctx.lineTo(lx2 + 30, ly); ctx.stroke();
-      ctx.fillText('Antagna', lx2 + 38, ly);
+      var lx3 = pad.l + 350;
+      ctx.beginPath(); ctx.moveTo(lx3, ly); ctx.lineTo(lx3 + 24, ly); ctx.stroke();
+      ctx.fillText('Antagna', lx3 + 30, ly);
     }
 
     function getPos(e) {
@@ -339,20 +357,20 @@
       <summary style="cursor:pointer; font-size:0.875rem; color:var(--link); font-weight:400; margin-bottom:0.5rem;">Visa fullst&auml;ndig tabell</summary>
       <table>
         <thead>
-          <tr><th>Termin</th><th>Beh. 1:a-handss&ouml;kande</th><th>Antagna</th><th>S&ouml;kande / antagen</th></tr>
+          <tr><th>Termin</th><th>Beh. s&ouml;kande</th><th>Beh. 1:a-handss&ouml;kande</th><th>Antagna</th><th>Beh. / antagen</th><th>1:a-h. / antagen</th></tr>
         </thead>
         <tbody>
-          <tr><td>HT 2015</td><td class="num">59</td><td class="num">28</td><td class="num">2,1</td></tr>
-          <tr><td>HT 2016</td><td class="num">77</td><td class="num">26</td><td class="num">3,0</td></tr>
-          <tr><td>HT 2017</td><td class="num">138</td><td class="num">36</td><td class="num">3,8</td></tr>
-          <tr><td>HT 2018</td><td class="num">110</td><td class="num">44</td><td class="num">2,5</td></tr>
-          <tr><td>HT 2019</td><td class="num">114</td><td class="num">41</td><td class="num">2,8</td></tr>
-          <tr><td>HT 2020</td><td class="num">104</td><td class="num">52</td><td class="num">2,0</td></tr>
-          <tr><td>HT 2021</td><td class="num">124</td><td class="num">34</td><td class="num">3,6</td></tr>
-          <tr><td>HT 2022</td><td class="num">106</td><td class="num">40</td><td class="num">2,7</td></tr>
-          <tr><td>HT 2023</td><td class="num">138</td><td class="num">30</td><td class="num">4,6</td></tr>
-          <tr><td>HT 2024</td><td class="num">165</td><td class="num">26</td><td class="num">6,4</td></tr>
-          <tr><td>HT 2025</td><td class="num">150</td><td class="num">30</td><td class="num">5,0</td></tr>
+          <tr><td>HT 2015</td><td class="num">435</td><td class="num">59</td><td class="num">28</td><td class="num">15,5</td><td class="num">2,1</td></tr>
+          <tr><td>HT 2016</td><td class="num">372</td><td class="num">77</td><td class="num">26</td><td class="num">14,3</td><td class="num">3,0</td></tr>
+          <tr><td>HT 2017</td><td class="num">608</td><td class="num">138</td><td class="num">36</td><td class="num">16,9</td><td class="num">3,8</td></tr>
+          <tr><td>HT 2018</td><td class="num">547</td><td class="num">110</td><td class="num">44</td><td class="num">12,4</td><td class="num">2,5</td></tr>
+          <tr><td>HT 2019</td><td class="num">450</td><td class="num">114</td><td class="num">41</td><td class="num">11,0</td><td class="num">2,8</td></tr>
+          <tr><td>HT 2020</td><td class="num">479</td><td class="num">104</td><td class="num">52</td><td class="num">9,2</td><td class="num">2,0</td></tr>
+          <tr><td>HT 2021</td><td class="num">561</td><td class="num">124</td><td class="num">34</td><td class="num">16,5</td><td class="num">3,6</td></tr>
+          <tr><td>HT 2022</td><td class="num">539</td><td class="num">106</td><td class="num">40</td><td class="num">13,5</td><td class="num">2,6</td></tr>
+          <tr><td>HT 2023</td><td class="num">579</td><td class="num">138</td><td class="num">30</td><td class="num">19,3</td><td class="num">4,6</td></tr>
+          <tr><td>HT 2024</td><td class="num">631</td><td class="num">165</td><td class="num">26</td><td class="num">24,3</td><td class="num">6,3</td></tr>
+          <tr><td>HT 2025</td><td class="num">635</td><td class="num">150</td><td class="num">30</td><td class="num">21,2</td><td class="num">5,0</td></tr>
         </tbody>
       </table>
       <p class="table-note">K&auml;lla: GU Datalager (<code>datalagret_ans&ouml;kningar.xlsx</code>).</p>
@@ -362,9 +380,10 @@
     (function() {
       window.__renderSokChart('sokChart',
         ['HT15','HT16','HT17','HT18','HT19','HT20','HT21','HT22','HT23','HT24','HT25'],
+        [435, 372, 608, 547, 450, 479, 561, 539, 579, 631, 635],
         [59, 77, 138, 110, 114, 104, 124, 106, 138, 165, 150],
         [28, 26, 36, 44, 41, 52, 34, 40, 30, 26, 30],
-        200);
+        800);
     })();
     </script>
 
